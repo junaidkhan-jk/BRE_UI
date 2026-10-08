@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { createHashRouter, Navigate } from 'react-router-dom';
 
 import { AppShell } from './AppShell';
 import { ApprovalQueue } from '../screens/ApprovalQueue';
@@ -16,8 +16,14 @@ import { Empty } from '../components/ScreenState';
  *
  * An unknown route lands on the no-such-page state rather than a blank screen — §13.4 requires the
  * same of a forbidden deep link, and a blank page is indistinguishable from a broken app.
+ *
+ * <b>Hash routing, not browser history.</b> A hash route needs no server rewrite, so the built
+ * bundle works opened from a file, served from any static host and published as a shareable
+ * preview — which is how this gets in front of reviewers before a BFF exists. Browser history
+ * would 404 on every deep link in all three of those cases. Swap to {@code createBrowserRouter}
+ * when the studio is served by something that can rewrite to index.html.
  */
-export const router = createBrowserRouter([
+export const router = createHashRouter([
   {
     path: '/',
     element: <AppShell />,

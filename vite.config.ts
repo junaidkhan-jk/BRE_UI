@@ -3,6 +3,10 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  // Relative asset paths, so the built bundle works from a file, a static host or a published
+  // preview — none of which serve from the domain root. An absolute '/assets/...' 404s in all
+  // three.
+  base: './',
   server: {
     port: 5173,
     // The studio never calls the Decision API directly — it talks to the BFF (TRD §13.1), which
