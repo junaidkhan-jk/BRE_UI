@@ -22,5 +22,22 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    rollupOptions: {
+      output: {
+        // A classic IIFE bundle, not an ES module.
+        //
+        // Browsers refuse to load `<script type="module">` over file:// — modules are fetched
+        // under CORS and a file has no origin — so a module build opens as a blank page when
+        // someone double-clicks the HTML. The review copy in docs/html is meant to be opened
+        // exactly that way, with no server.
+        //
+        // The cost is no code splitting, which this app does not use anyway: one entry, no
+        // dynamic imports, 346 kB. Revisit if the Studio ever lazy-loads a route.
+        format: 'iife',
+        inlineDynamicImports: true,
+        entryFileNames: 'assets/studio.js',
+        assetFileNames: 'assets/studio.[ext]',
+      },
+    },
   },
 });
