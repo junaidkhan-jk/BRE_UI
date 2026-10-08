@@ -1,0 +1,119 @@
+/*
+ * Design tokens, taken from BRE_PRD/"BRE 2.0 Workspace · Wireframes (2).html".
+ *
+ * The status colours are not decoration — they carry the decision vocabulary, and the same three
+ * appear on every screen so that a reviewer learns them once:
+ *
+ *   pass  green   PASS, Live
+ *   dev   amber   DEVIATION, In review
+ *   fail  red     FAIL
+ *
+ * Each has a tint for the background of a pill and a saturated tone for its text, which is what
+ * keeps a status badge legible at small sizes without a border.
+ *
+ * Colour is never the only signal. Every status pill carries its word as well, because roughly one
+ * man in twelve cannot reliably separate the green from the amber, and "did this application pass"
+ * is not a question to answer with a hue alone.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Chrome */
+  --page: #e9e9e6;
+  --chrome: #ffffff;
+  --chrome-ink: #1e1e1e;
+  --chrome-muted: #5e5e5a;
+  --chrome-line: #d2d2cd;
+
+  /* Workspace surfaces */
+  --bg: #f2f3f5;
+  --paper: #ffffff;
+  --ink: #111827;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --soft: #f5f6f8;
+  --fill: #e5e7eb;
+  --primary: #3dd263;
+  --side: #1b1e30;
+  --code-bg: #f8f9fa;
+
+  /* Decision vocabulary */
+  --pass: #16a34a;
+  --pass-bg: #dcfce7;
+  --dev: #d97706;
+  --dev-bg: #fef3c7;
+  --fail: #dc2626;
+  --fail-bg: #fee2e2;
+
+  /* Draft and superseded states */
+  --draft: #6b7280;
+  --draft-bg: #f3f4f6;
+  --superseded: #9ca3af;
+
+  /* The AI assistant's accent. Distinct from every status colour on purpose: a machine
+     suggestion must never look like a decision the engine made. */
+  --ai: #8b5cf6;
+  --ai-tint: #f5f3ff;
+
+  /* Annotation callouts in the wireframe */
+  --anno: #2563eb;
+
+  /* Type */
+  --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* Spacing, on a 4px grid */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+  --s7: 48px;
+
+  --radius: 8px;
+  --radius-sm: 6px;
+  --radius-pill: 999px;
+
+  --shadow-1: 0 1px 2px rgb(17 24 39 / 6%);
+  --shadow-2: 0 4px 12px rgb(17 24 39 / 8%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* A visible focus ring on everything focusable. Rule authoring is keyboard-heavy work — the
+   decision-table grid is navigated with arrows, Enter and Tab (TRD §13.5 U5) — so losing track of
+   focus is losing your place in a policy. */
+:focus-visible {
+  outline: 2px solid var(--anno);
+  outline-offset: 2px;
+}
+
+/* Respect a reader who has asked for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,110 @@
+.shell {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  height: 100%;
+}
+
+.shell__nav {
+  background: var(--side);
+  color: #fff;
+  padding: var(--s4) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+}
+
+.shell__brand {
+  padding: 0 var(--s4);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+}
+
+.shell__brand-dim {
+  opacity: 0.6;
+  font-weight: 500;
+}
+
+.shell__links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.shell__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s2);
+  padding: var(--s2) var(--s4);
+  color: rgb(255 255 255 / 72%);
+  text-decoration: none;
+  font-size: 13px;
+  border-left: 3px solid transparent;
+}
+
+.shell__link:hover {
+  color: #fff;
+  background: rgb(255 255 255 / 6%);
+}
+
+.shell__link--on {
+  color: #fff;
+  background: rgb(255 255 255 / 10%);
+  border-left-color: var(--primary);
+  font-weight: 600;
+}
+
+.shell__badge {
+  background: var(--primary);
+  color: #06230f;
+  border-radius: var(--radius-pill);
+  padding: 0 7px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.shell__body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.shell__header {
+  height: 44px;
+  background: var(--chrome);
+  border-bottom: 1px solid var(--chrome-line);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 var(--s4);
+  gap: var(--s3);
+}
+
+.shell__env {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--soft);
+  color: var(--muted);
+  border: 1px solid var(--line);
+}
+
+/* PROD is loud on purpose: an author must never submit a rule change believing they are in UAT. */
+.shell__env--prod {
+  background: var(--fail-bg);
+  color: var(--fail);
+  border-color: var(--fail);
+}
+
+.shell__main {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: var(--s5);
+}

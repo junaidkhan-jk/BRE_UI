@@ -1,0 +1,55 @@
+/**
+ * The workspace's screens.
+ *
+ * Taken from the wireframes (BRE_PRD/"BRE 2.0 Workspace · Wireframes (2).html"), which define
+ * five: Rule Repository, Rule Editor, Simulator, Approval Queue and Decision Trace.
+ *
+ * These are a SUBSET of TRD §13.5, which specifies seventeen (U1-U17) over a policy-version
+ * information architecture. The two differ in more than count — see ../../README.md "Wireframes
+ * versus TRD §13" — so this list is the wireframes' five, deliberately, and the route paths are
+ * the TRD's where they correspond, so that adding the rest later does not move these.
+ */
+export interface Screen {
+  readonly id: string;
+  readonly label: string;
+  /** The route this screen owns. */
+  readonly path: string;
+  /** TRD §13.5 screens this covers, for traceability. */
+  readonly trd: readonly string[];
+  /** A count shown on the nav item, when the screen has pending work. */
+  readonly badge?: number;
+}
+
+export const SCREENS: readonly Screen[] = [
+  {
+    id: 'repository',
+    label: 'Rule Repository',
+    path: '/policies',
+    trd: ['U2'],
+  },
+  {
+    id: 'editor',
+    label: 'Rule Editor',
+    path: '/policies/:code/edit',
+    trd: ['U3', 'U4'],
+  },
+  {
+    id: 'simulator',
+    label: 'Simulator',
+    path: '/simulate',
+    trd: ['U10'],
+  },
+  {
+    id: 'approvals',
+    label: 'Approval Queue',
+    path: '/reviews',
+    trd: ['U12'],
+    badge: 3,
+  },
+  {
+    id: 'trace',
+    label: 'Decision Trace',
+    path: '/decisions',
+    trd: ['U14', 'U15'],
+  },
+];

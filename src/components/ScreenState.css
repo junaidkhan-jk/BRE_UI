@@ -1,0 +1,70 @@
+.state {
+  padding: var(--s5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+
+.state--empty,
+.state--error,
+.state--forbidden,
+.state--conflict {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  align-items: flex-start;
+}
+
+.state--error,
+.state--conflict {
+  border-left: 3px solid var(--fail);
+}
+
+.state--forbidden {
+  border-left: 3px solid var(--dev);
+}
+
+.state__title {
+  margin: 0;
+  font-weight: 600;
+}
+
+.state__detail,
+.state__trace {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.state__trace code {
+  font-family: var(--mono);
+  background: var(--code-bg);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton {
+  height: 14px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(90deg, var(--fill) 25%, var(--soft) 50%, var(--fill) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* Visually hidden but announced, so a screen reader is told the page is loading. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
