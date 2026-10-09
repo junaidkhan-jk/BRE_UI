@@ -1,6 +1,8 @@
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect } from '@playwright/test';
 
+import { signIn } from './session';
+
 /**
  * The axe accessibility audit (M5-09).
  *
@@ -44,6 +46,13 @@ for (const [name, route] of SCREENS) {
     expect(results.violations, `${name} must be usable by everyone who has to use it`).toEqual([]);
   });
 }
+
+// Every screen is behind the session now, so each test starts signed in. The login screen's own
+// behaviour — the form, the announced error, the guard that redirects — is tested in login.spec.ts
+// without one.
+test.beforeEach(async ({ page }) => {
+  await signIn(page);
+});
 
 test('status is never conveyed by colour alone', async ({ page }) => {
   await page.goto('/#/decisions');

@@ -1,0 +1,121 @@
+/*
+ * The sign-in screen.
+ *
+ * Uses the same tokens as the workspace so the two do not look like different products, and sizes
+ * the card in `rem` so it still works at a browser's 200% zoom — which WCAG 1.4.4 requires and a
+ * fixed-pixel card quietly breaks.
+ */
+
+.login {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  padding: 2rem 1rem;
+}
+
+.login__card {
+  width: 100%;
+  max-width: 24rem;
+  background: var(--paper);
+  border: 1px solid var(--chrome-line);
+  border-radius: 10px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
+}
+
+.login__brand {
+  margin: 0;
+  font-size: 1.375rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.login__brand-dim {
+  color: var(--chrome-muted);
+  font-weight: 400;
+}
+
+.login__sub {
+  margin: 0.375rem 0 1.5rem;
+  font-size: 0.8125rem;
+  color: var(--chrome-muted);
+}
+
+.login__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 0.25rem;
+}
+
+.login__input {
+  font: inherit;
+  font-size: 0.875rem;
+  padding: 0.5rem 0.625rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--chrome-line);
+  border-radius: 6px;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+/* A visible focus ring, not the removed one. Keyboard-only users navigate this form entirely by
+ * focus, and `outline: none` on an input is the single most common way a form becomes unusable
+ * without a mouse. */
+.login__input:focus-visible,
+.login__submit:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.login__submit {
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.5625rem 1rem;
+  margin-top: 0.25rem;
+  border: 1px solid var(--ink);
+  border-radius: 6px;
+  background: var(--ink);
+  color: var(--paper);
+  cursor: pointer;
+}
+
+.login__submit:disabled {
+  /* Dimmed, but still well past 4.5:1 — a disabled control still has to be readable, because
+   * "Signing in…" is the only feedback that the slow password hash is working. */
+  background: var(--chrome-muted);
+  border-color: var(--chrome-muted);
+  cursor: progress;
+}
+
+.login__error {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  padding: 0.625rem 0.75rem;
+  margin-bottom: 1.25rem;
+  border-radius: 6px;
+  background: var(--fail-bg);
+  color: var(--fail);
+  border: 1px solid var(--fail);
+}
+
+.login__help {
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--chrome-muted);
+  margin: -0.5rem 0 1rem;
+}
+
+.login__note {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--chrome-muted);
+  margin: 1.5rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--chrome-line);
+}

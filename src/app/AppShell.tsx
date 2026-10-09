@@ -2,6 +2,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 
 import { usingFixtures } from '../api/fixtures';
 import { SCREENS } from './screens';
+import { useSession } from './SessionContext';
 
 import './AppShell.css';
 
@@ -11,10 +12,15 @@ import './AppShell.css';
  * The environment label in the header is not decoration. An author who cannot tell at a glance
  * whether they are editing LOCAL or PROD will eventually submit a change in the wrong one, and a
  * rule change is not a thing to discover you made in production.
+ *
+ * The same reasoning puts the signed-in person, their organisation and their roles beside it. Who
+ * you are determines what your next click is allowed to do — and in a multi-tenant system, which
+ * lender's policy you are about to change.
  */
 export function AppShell(): React.JSX.Element {
   const environment = import.meta.env.VITE_ENV_LABEL ?? 'LOCAL';
   const isProduction = environment === 'PROD';
+  const { session, signOut } = useSession();
 
   return (
     <div className="shell">
@@ -56,6 +62,28 @@ export function AppShell(): React.JSX.Element {
           >
             {environment}
           </span>
+
+          {session ? (
+            <div className="shell__who">
+              {/* The organisation, not only the person. A consultant with accounts at two lenders
+                  is the case this exists for: every policy they can see belongs to exactly one of
+                  them, and getting that wrong means editing the wrong lender's credit policy. */}
+              <span className="shell__who-name">{session.displayName}</span>
+              <span className="shell__who-meta">
+                {session.tenantId} · {session.roles.join(', ') || 'no roles'}
+              </span>
+              {session.canOverrideSegregationOfDuties ? (
+                // Shown because it is a standing exception to a control, not a feature. An
+                // administrator should be reminded that their approvals are recorded as overrides.
+                <span className="shell__who-sod" title="Approvals you make on your own work are recorded as segregation-of-duties overrides (00 §3.3)">
+                  SoD override enabled
+                </span>
+              ) : null}
+              <button className="shell__signout" type="button" onClick={() => void signOut()}>
+                Sign out
+              </button>
+            </div>
+          ) : null}
         </header>
         <main className="shell__main">
           <Outlet />

@@ -1,12 +1,14 @@
 import { createHashRouter, Navigate } from 'react-router-dom';
 
 import { AppShell } from './AppShell';
+import { RequireSession } from './RequireSession';
 import { ApprovalQueue } from '../screens/ApprovalQueue';
 import { DecisionTrace } from '../screens/DecisionTrace';
 import { RuleEditor } from '../screens/RuleEditor';
 import { RuleRepository } from '../screens/RuleRepository';
 import { Simulator } from '../screens/Simulator';
 import { Empty } from '../components/ScreenState';
+import { Login } from '../screens/Login';
 
 /**
  * Routes.
@@ -17,6 +19,10 @@ import { Empty } from '../components/ScreenState';
  * An unknown route lands on the no-such-page state rather than a blank screen — §13.4 requires the
  * same of a forbidden deep link, and a blank page is indistinguishable from a broken app.
  *
+ * The login screen sits OUTSIDE the shell, because the shell is the signed-in chrome — a nav of
+ * screens the user cannot open yet, around a login form, is a worse first impression than a page
+ * with one job.
+ *
  * <b>Hash routing, not browser history.</b> A hash route needs no server rewrite, so the built
  * bundle works opened from a file, served from any static host and published as a shareable
  * preview — which is how this gets in front of reviewers before a BFF exists. Browser history
@@ -24,9 +30,17 @@ import { Empty } from '../components/ScreenState';
  * when the studio is served by something that can rewrite to index.html.
  */
 export const router = createHashRouter([
+  { path: '/login', element: <Login /> },
   {
     path: '/',
-    element: <AppShell />,
+    // Every screen is behind the session. Wrapping the shell rather than each route means a screen
+    // added later is protected by default — the alternative, a guard per route, is protected until
+    // somebody forgets one, and that one is unauthenticated.
+    element: (
+      <RequireSession>
+        <AppShell />
+      </RequireSession>
+    ),
     children: [
       { index: true, element: <Navigate to="/policies" replace /> },
       { path: 'policies', element: <RuleRepository /> },

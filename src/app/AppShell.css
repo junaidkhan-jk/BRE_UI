@@ -108,3 +108,48 @@
   overflow: auto;
   padding: var(--s5);
 }
+
+/* Signed-in identity, in the header beside the environment. */
+.shell__who {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+}
+
+.shell__who-name {
+  font-weight: 600;
+  color: var(--chrome-ink);
+}
+
+.shell__who-meta {
+  color: var(--chrome-muted);
+}
+
+/* An amber note, not a red one: the override is a sanctioned exception, and colouring it as an
+ * error would teach people to ignore it. It also carries its words, because colour is never the
+ * only signal here. */
+.shell__who-sod {
+  padding: 0.125rem 0.4375rem;
+  border-radius: 999px;
+  background: var(--dev-bg);
+  color: var(--dev);
+  font-weight: 600;
+}
+
+.shell__signout {
+  font: inherit;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.625rem;
+  border: 1px solid var(--chrome-line);
+  border-radius: 6px;
+  background: var(--chrome);
+  color: var(--chrome-ink);
+  cursor: pointer;
+}
+
+.shell__signout:focus-visible {
+  outline: 2px solid var(--chrome-ink);
+  outline-offset: 2px;
+}

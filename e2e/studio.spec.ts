@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 
+import { signIn } from './session';
+
 /**
  * The five screens, exercised as a reviewer would (M5-09).
  *
@@ -7,6 +9,13 @@ import { test, expect } from '@playwright/test';
  * without relying on colour, that sample data announces itself, that a decision's trace opens. A
  * test that asserted class names would pass through a redesign that broke all of those.
  */
+
+// Every screen is behind the session now, so each test starts signed in. The login screen's own
+// behaviour — the form, the announced error, the guard that redirects — is tested in login.spec.ts
+// without one.
+test.beforeEach(async ({ page }) => {
+  await signIn(page);
+});
 
 test.describe('the shell', () => {
   test('renders, routes, and reports no console errors', async ({ page }) => {
