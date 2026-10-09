@@ -30,7 +30,22 @@
   --bg: #f2f3f5;
   --paper: #ffffff;
   --ink: #111827;
-  --muted: #6b7280;
+
+/* WCAG 2.1 AA contrast, and these values are measured rather than chosen.
+ *
+ * The status tones were originally Tailwind's 600-weight colours, which look right and fail: on
+ * their own tinted backgrounds they landed between 2.86:1 and 4.35:1 against the 4.5:1 that AA
+ * requires for text this size. An axe audit over the four screens reported 67 violations, every
+ * one of them a status pill or a muted label.
+ *
+ * That matters more here than in most products. These pills are how a credit analyst reads whether
+ * an application passed, deviated or failed, and this is a tool somebody uses all day. The
+ * foregrounds below are each the darkest shade of the original hue that clears 4.5:1 on its own
+ * background — the colour vocabulary is unchanged, it is simply legible now.
+ *
+ * Re-check with `npm run e2e:a11y` after touching any of them.
+ */
+  --muted: #686f7d;
   --line: #e5e7eb;
   --soft: #f5f6f8;
   --fill: #e5e7eb;
@@ -39,21 +54,21 @@
   --code-bg: #f8f9fa;
 
   /* Decision vocabulary */
-  --pass: #16a34a;
+  --pass: #11803a;
   --pass-bg: #dcfce7;
-  --dev: #d97706;
+  --dev: #a75b04;
   --dev-bg: #fef3c7;
-  --fail: #dc2626;
+  --fail: #ca2222;
   --fail-bg: #fee2e2;
 
   /* Draft and superseded states */
-  --draft: #6b7280;
+  --draft: #686f7d;
   --draft-bg: #f3f4f6;
   --superseded: #9ca3af;
 
   /* The AI assistant's accent. Distinct from every status colour on purpose: a machine
      suggestion must never look like a decision the engine made. */
-  --ai: #8b5cf6;
+  --ai: #7e53df;
   --ai-tint: #f5f3ff;
 
   /* Annotation callouts in the wireframe */

@@ -1,5 +1,7 @@
-node_modules/
 dist/
 *.local
-.vite/
+node_modules/
+playwright-report/
+test-results/
 *.tsbuildinfo
+.vite/

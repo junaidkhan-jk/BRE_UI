@@ -1,8 +1,37 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
+/**
+ * Rewrites the emitted `<script type="module">` into a classic script tag.
+ *
+ * The bundle is built as an IIFE (see `rollupOptions.output.format` below), so the `type="module"`
+ * attribute buys nothing — and it costs something real: a browser fetches a module script under
+ * CORS, and a `file://` page has no origin, so the module is blocked and the page renders BLANK
+ * with no visible error. That is a defect this project actually shipped.
+ *
+ * It was previously fixed only in the hand-copied review page under docs/html, which left
+ * `dist/index.html` still broken and the fix one regeneration away from being lost. Fixing it here
+ * means the shipped artefact is correct by construction and the review copy is a straight copy.
+ *
+ * `defer` is added, and it is not optional. A module script is deferred by default; a classic one
+ * is NOT. Vite puts the tag in `<head>`, so simply dropping `type="module"` makes the bundle
+ * execute before `<div id="root">` has been parsed — React finds no mount point and the page
+ * renders blank, which is the very failure this is meant to prevent, reintroduced by the fix for
+ * it. Caught by the end-to-end test, which is the whole reason it exists.
+ */
+function classicScriptTag() {
+  return {
+    name: 'bre-classic-script-tag',
+    transformIndexHtml(html: string) {
+      return html
+        .replace(/<script\s+type="module"\s+crossorigin\s+/g, '<script defer ')
+        .replace(/<script\s+type="module"\s+/g, '<script defer ');
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), classicScriptTag()],
   // Relative asset paths, so the built bundle works from a file, a static host or a published
   // preview — none of which serve from the domain root. An absolute '/assets/...' 404s in all
   // three.
