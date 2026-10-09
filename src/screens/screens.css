@@ -598,3 +598,124 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* ------------------------------------------------------------------ Run a policy
+ *
+ * The run screen. Sized in rem so it survives a browser at 200% zoom (WCAG 1.4.4), and the result
+ * table scrolls inside its own container rather than widening the page — a forty-member group's
+ * outcome is wide, and a horizontally scrolling page is unusable.
+ */
+
+.run__facts {
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--chrome-line);
+  border-radius: 6px;
+  background: var(--paper);
+  color: var(--ink);
+  resize: vertical;
+}
+
+.run__facts:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.run__note {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--chrome-muted);
+  margin: 0.375rem 0 1rem;
+}
+
+.run__error {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  padding: 0.75rem 0.875rem;
+  margin: 1rem 0;
+  border-radius: 6px;
+  background: var(--fail-bg);
+  color: var(--fail);
+  border: 1px solid var(--fail);
+}
+
+/* Amber, not red: a missing parameter set or a mistyped fact path is something to know about, not
+ * a failure of the run. Colouring it as an error teaches people to ignore the colour. */
+.run__warn {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  padding: 0.75rem 0.875rem;
+  margin: 1rem 0;
+  border-radius: 6px;
+  background: var(--dev-bg);
+  color: var(--dev);
+  border: 1px solid var(--dev);
+}
+
+.run__result {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--chrome-line);
+}
+
+.run__headline {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.run__meta {
+  font-size: 0.75rem;
+  color: var(--chrome-muted);
+}
+
+.run__h2 {
+  font-size: 0.875rem;
+  font-weight: 650;
+  color: var(--ink);
+  margin: 1.5rem 0 0.75rem;
+}
+
+.run__step {
+  margin-bottom: 1.25rem;
+}
+
+.run__step-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8125rem;
+}
+
+.run__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+  display: block;
+  overflow-x: auto;
+}
+
+.run__table th,
+.run__table td {
+  text-align: left;
+  padding: 0.375rem 0.625rem;
+  border-bottom: 1px solid var(--chrome-line);
+  white-space: nowrap;
+}
+
+.run__table th {
+  font-weight: 600;
+  color: var(--chrome-muted);
+}
+
+.run__list {
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}

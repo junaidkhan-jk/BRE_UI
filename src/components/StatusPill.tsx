@@ -44,6 +44,20 @@ export function StatusPill(props: {
   readonly outcome?: Outcome;
   readonly decision?: Decision;
   readonly ruleStatus?: RuleStatus;
+  /**
+   * A status as a plain string, for a value that came from the server.
+   *
+   * The typed props above are better where the value is known at compile time. They are unusable
+   * where it is not: every status on a real screen arrives in a JSON response as a string, and
+   * casting one to `Outcome` to satisfy the compiler would be asserting something about the server
+   * that the compiler cannot check — and would silently produce the wrong tone the day the server
+   * adds a status this build has not heard of.
+   *
+   * So this looks the string up in both maps and falls back to the neutral tone with the string
+   * itself as the label. An unknown status then reads as "something, and this build does not know
+   * what" rather than as PASS.
+   */
+  readonly status?: string;
   readonly label?: string;
 }): React.JSX.Element {
   const { tone, label } = resolve(props);
@@ -58,8 +72,19 @@ function resolve(props: {
   outcome?: Outcome;
   decision?: Decision;
   ruleStatus?: RuleStatus;
+  status?: string;
   label?: string;
 }): { tone: Tone; label: string } {
+  if (props.status) {
+    const tone =
+      DECISION_TONE[props.status as Decision] ?? OUTCOME_TONE[props.status as Outcome];
+    return {
+      // Neutral when unrecognised, never 'pass'. Guessing the happy path for an unknown status is
+      // the one guess that could show a green badge over a decline.
+      tone: tone ?? 'draft',
+      label: props.label ?? props.status.replaceAll('_', ' '),
+    };
+  }
   if (props.ruleStatus) {
     const mapped = RULE_STATUS[props.ruleStatus];
     return { tone: mapped.tone, label: props.label ?? mapped.label };
