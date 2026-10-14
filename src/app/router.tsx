@@ -3,10 +3,12 @@ import { createHashRouter, Navigate } from 'react-router-dom';
 import { AppShell } from './AppShell';
 import { RequireSession } from './RequireSession';
 import { ApprovalQueue } from '../screens/ApprovalQueue';
+import { AuditTrail } from '../screens/AuditTrail';
 import { DecisionTrace } from '../screens/DecisionTrace';
 import { RuleEditor } from '../screens/RuleEditor';
 import { RuleRepository } from '../screens/RuleRepository';
 import { Simulator } from '../screens/Simulator';
+import { VersionDiff } from '../screens/VersionDiff';
 import { Empty } from '../components/ScreenState';
 import { Login } from '../screens/Login';
 
@@ -47,7 +49,12 @@ export const router = createHashRouter([
       { path: 'policies/:code/edit', element: <RuleEditor /> },
       { path: 'simulate', element: <Simulator /> },
       { path: 'reviews', element: <ApprovalQueue /> },
+      { path: 'diff', element: <VersionDiff /> },
+      // The same screen reachable from a policy, so a link out of the repository can carry which
+      // policy was being read. The screen's own pickers still apply.
+      { path: 'policies/:code/diff', element: <VersionDiff /> },
       { path: 'decisions', element: <DecisionTrace /> },
+      { path: 'audit', element: <AuditTrail /> },
       {
         path: '*',
         element: <Empty title="That page does not exist." />,

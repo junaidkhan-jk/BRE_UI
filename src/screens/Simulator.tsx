@@ -3,10 +3,12 @@ import { useEffect, useState } from 'react';
 import {
   type PolicySummary,
   type RunResult,
+  type VersionDetail,
   type VersionSummary,
   RunError,
   listPolicies,
   listVersions,
+  readVersion,
   runPolicy,
 } from '../api/runs';
 import { usingFixtures } from '../api/fixtures';
@@ -31,6 +33,13 @@ import './screens.css';
  * slides — so the screen makes the author state which date they mean. The server refuses a run
  * without one.
  *
+ * **The coverage panel answers a different question from the run.** A run says what this policy
+ * does to this applicant; coverage says how much of the policy the version's stored test cases
+ * have ever exercised, and which rule branches, decision-table rows and scorecard bins they have
+ * never reached (FR-TEST-003). Both belong here because an author iterating on a rule asks them in
+ * the same sitting — and because the uncovered list is the only place the submit gate's refusal is
+ * explained before it happens.
+ *
  * **What this screen is not:** a portfolio back-test. Running a policy over thousands of historical
  * applications to see an outcome mix shift is a job, not a request, and it needs stored decisions
  * to replay against (M4). One applicant at a time is what an author iterating on a rule actually
@@ -44,6 +53,7 @@ export function Simulator(): React.JSX.Element {
   const [asOf, setAsOf] = useState(() => new Date().toISOString().slice(0, 10));
   const [facts, setFacts] = useState(SAMPLE_FACTS);
   const [result, setResult] = useState<RunResult | null>(null);
+  const [detail, setDetail] = useState<VersionDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -76,6 +86,18 @@ export function Simulator(): React.JSX.Element {
       })
       .catch((caught: unknown) => setError(messageOf(caught)));
   }, [policyCode]);
+
+  useEffect(() => {
+    if (!policyCode || !version || usingFixtures) {
+      setDetail(null);
+      return;
+    }
+    readVersion(policyCode, Number(version))
+      // A version whose detail cannot be read is not worth an error banner over the run form: the
+      // run itself still works, and the coverage panel simply does not appear.
+      .then(setDetail)
+      .catch(() => setDetail(null));
+  }, [policyCode, version]);
 
   async function run(): Promise<void> {
     setBusy(true);
@@ -200,8 +222,84 @@ export function Simulator(): React.JSX.Element {
         </div>
       ) : null}
 
+      {detail?.coverage ? (
+        <CoveragePanel detail={detail} coverage={detail.coverage} />
+      ) : null}
+
       {result ? <RunOutcome result={result} /> : null}
     </section>
+  );
+}
+
+/**
+ * What the version's stored test cases exercise (FR-TEST-003, AC-TEST-003).
+ *
+ * The uncovered items are listed by name rather than counted, because a count tells an author they
+ * have a problem and a name tells them where it is. The three kinds are shown separately as well
+ * as pooled: a policy can be at 85% overall while every row of one decision table is untested, and
+ * the pooled figure alone would hide that.
+ */
+function CoveragePanel({
+  detail,
+  coverage,
+}: {
+  detail: VersionDetail;
+  coverage: NonNullable<VersionDetail['coverage']>;
+}): React.JSX.Element {
+  const under = coverage.overallPercent < detail.minCoveragePercent;
+  const uncovered = [
+    ...coverage.uncoveredRuleStatuses,
+    ...coverage.uncoveredRows,
+    ...coverage.uncoveredBins,
+  ];
+
+  return (
+    <div className="cov">
+      <div className="cov__head">
+        <span className={under ? 'cov__figure cov__figure--under' : 'cov__figure'}>
+          {coverage.overallPercent}%
+        </span>
+        <span className="run__meta">
+          test coverage of v{detail.version} · this tenant requires {detail.minCoveragePercent}% to
+          submit · {detail.tests.passed}/{detail.tests.total} test cases pass
+        </span>
+      </div>
+
+      <div className={under ? 'cov__bar cov__bar--under' : 'cov__bar'}>
+        <span style={{ width: `${Math.min(100, coverage.overallPercent)}%` }} />
+      </div>
+
+      <p className="cov__kinds">
+        <span>
+          Rule statuses {coverage.ruleStatusesCovered}/{coverage.ruleStatusesTotal}
+        </span>
+        <span>
+          Table rows {coverage.rowsCovered}/{coverage.rowsTotal}
+        </span>
+        <span>
+          Scorecard bins {coverage.binsCovered}/{coverage.binsTotal}
+        </span>
+      </p>
+
+      {under ? (
+        <p className="run__warn">
+          Below this tenant&rsquo;s threshold, so this version cannot be submitted for review yet.
+        </p>
+      ) : null}
+
+      {uncovered.length > 0 ? (
+        <p className="cov__uncovered">
+          Never reached by any test case:{' '}
+          {uncovered.map((item) => (
+            <code key={item}>{item}</code>
+          ))}
+        </p>
+      ) : (
+        <p className="cov__uncovered">
+          Every rule branch, table row and scorecard bin is exercised by at least one test case.
+        </p>
+      )}
+    </div>
   );
 }
 

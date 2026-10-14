@@ -38,7 +38,14 @@ test.describe('the shell', () => {
    * the control, so it is tested like one.
    */
   test('says it is showing sample data, on every screen', async ({ page }) => {
-    for (const route of ['#/policies', '#/simulate', '#/reviews', '#/decisions']) {
+    for (const route of [
+      '#/policies',
+      '#/simulate',
+      '#/reviews',
+      '#/decisions',
+      '#/diff',
+      '#/audit',
+    ]) {
       await page.goto('/' + route);
       await expect(
         page.getByText(/Sample data/i),
@@ -53,11 +60,49 @@ test.describe('the shell', () => {
       ['Simulator', '#/simulate'],
       ['Approval Queue', '#/reviews'],
       ['Decision Trace', '#/decisions'],
+      ['Compare Versions', '#/diff'],
+      ['Audit Trail', '#/audit'],
       ['Rule Repository', '#/policies'],
     ] as const) {
       await page.getByRole('link', { name: new RegExp(label) }).click();
       await expect(page).toHaveURL(new RegExp(path.replace('#/', '#\\/') + '$'));
     }
+  });
+});
+
+test.describe('Compare Versions', () => {
+  /**
+   * With no registry there is nothing to compare, and the screen has to say so rather than render
+   * an empty frame. A blank panel and a failed fetch look identical, and the difference matters
+   * when the question is whether it is safe to approve a change.
+   */
+  test('explains that there is nothing to compare without a registry', async ({ page }) => {
+    await page.goto('/#/diff');
+
+    await expect(page.getByRole('heading', { name: /Compare versions/i })).toBeVisible();
+    await expect(page.getByText(/No registry is connected/i)).toBeVisible();
+    await expect(page.getByRole('button', { name: /Compare/i })).toBeDisabled();
+  });
+});
+
+test.describe('Audit Trail', () => {
+  test('offers the governance filters and says why the trail is empty', async ({ page }) => {
+    await page.goto('/#/audit');
+
+    await expect(page.getByRole('heading', { name: /Audit trail/i })).toBeVisible();
+    // The filters are the screen's whole interface, so their absence is a broken screen even when
+    // there is nothing to list.
+    await expect(page.getByLabel('Action')).toBeVisible();
+    await expect(page.getByLabel('Actor')).toBeVisible();
+    await expect(page.getByText(/No registry is connected/i)).toBeVisible();
+  });
+
+  test('has no write control anywhere on it', async ({ page }) => {
+    await page.goto('/#/audit');
+
+    // An audit log with an append button is a log a user can author. There is no such endpoint and
+    // there must be no such control; this fails if somebody adds one.
+    await expect(page.getByRole('button', { name: /add|new|create|delete|edit/i })).toHaveCount(0);
   });
 });
 

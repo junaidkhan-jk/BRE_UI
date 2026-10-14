@@ -52,4 +52,23 @@ export const SCREENS: readonly Screen[] = [
     path: '/decisions',
     trd: ['U14', 'U15'],
   },
+  // Beyond the wireframes' five. Both are screens over endpoints that now exist: the registry
+  // compares two versions (M3-02) and reads back the hash-chained audit log (M3-10). Added here
+  // rather than left as API-only because a governance record nobody can read in the product is a
+  // governance record somebody will ask an engineer to query.
+  {
+    id: 'diff',
+    label: 'Compare Versions',
+    // Paramless, because the screen has its own policy and version pickers. The parameterised
+    // form /policies/:code/diff is also routed, for a link from a policy — but a nav item cannot
+    // carry a parameter it does not have a value for.
+    path: '/diff',
+    trd: ['U12'],
+  },
+  {
+    id: 'audit',
+    label: 'Audit Trail',
+    path: '/audit',
+    trd: ['U16'],
+  },
 ];

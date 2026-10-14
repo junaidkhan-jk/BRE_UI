@@ -60,6 +60,57 @@ export interface RunResult {
   readonly assetsResolved: boolean;
 }
 
+/** What a test suite exercised, as the registry measures it (FR-TEST-003). */
+export interface Coverage {
+  readonly overallPercent: number;
+  readonly ruleStatusPercent: number;
+  readonly rowPercent: number;
+  readonly binPercent: number;
+  readonly ruleStatusesTotal: number;
+  readonly ruleStatusesCovered: number;
+  readonly rowsTotal: number;
+  readonly rowsCovered: number;
+  readonly binsTotal: number;
+  readonly binsCovered: number;
+  readonly uncoveredRuleStatuses: readonly string[];
+  readonly uncoveredRows: readonly string[];
+  readonly uncoveredBins: readonly string[];
+}
+
+/** A version as the registry returns it, with its latest compile report. */
+export interface VersionDetail {
+  readonly policyCode: string;
+  readonly version: number;
+  readonly status: string;
+  readonly submissionRound: number;
+  readonly compileOk: boolean;
+  readonly findings: readonly string[];
+  readonly tests: { readonly total: number; readonly passed: number; readonly failures: readonly string[] };
+  /** Absent when nothing has been measured — which is not the same as measured at zero. */
+  readonly coverage?: Coverage;
+  readonly minCoveragePercent: number;
+  readonly changeNote?: string;
+  readonly committeeReference?: string;
+  readonly rowVersion: number;
+}
+
+/** One semantic change between two versions. */
+export interface DiffChange {
+  readonly kind: 'ADDED' | 'REMOVED' | 'CHANGED';
+  readonly subject: string;
+  readonly detail: string;
+}
+
+/** A comparison of two versions. */
+export interface Diff {
+  readonly policyCode: string;
+  readonly fromVersion: number;
+  readonly toVersion: number;
+  readonly semantic: readonly DiffChange[];
+  readonly unified: readonly string[];
+  readonly textDiffSkipped: boolean;
+}
+
 /** A failed registry call. */
 export class RunError extends Error {
   readonly status: number;
@@ -128,6 +179,25 @@ export async function readSource(policyCode: string, version: number): Promise<s
     throw new RunError(response.status, 'This version has no saved source yet.');
   }
   return response.text();
+}
+
+/** One version with its compile report, coverage and submit evidence. */
+export function readVersion(policyCode: string, version: number): Promise<VersionDetail> {
+  return call<VersionDetail>(
+    `/v1/policies/${encodeURIComponent(policyCode)}/versions/${version}`,
+  );
+}
+
+/**
+ * Compares two versions.
+ *
+ * Either order works and either may be a draft: reviewing a change means reading what it does to
+ * the version it replaces, and that has to be possible before the change is submitted.
+ */
+export function diffVersions(policyCode: string, from: number, to: number): Promise<Diff> {
+  return call<Diff>(
+    `/v1/policies/${encodeURIComponent(policyCode)}/versions/${from}/diff/${to}`,
+  );
 }
 
 /**

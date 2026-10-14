@@ -20,6 +20,8 @@ const SCREENS = [
   ['Simulator', '#/simulate'],
   ['Approval Queue', '#/reviews'],
   ['Decision Trace', '#/decisions'],
+  ['Compare Versions', '#/diff'],
+  ['Audit Trail', '#/audit'],
 ] as const;
 
 for (const [name, route] of SCREENS) {

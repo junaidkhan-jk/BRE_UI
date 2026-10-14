@@ -719,3 +719,227 @@
   font-size: 0.8125rem;
   line-height: 1.6;
 }
+
+/* ---------------------------------------------------------------- form inputs
+   `field__input` was used by the Simulator from the day it was written and never
+   had a rule, so every select and date input rendered as the browser's default
+   next to styled controls. Added here rather than in app.css because it belongs
+   with `field`, which lives here. */
+.field__input {
+  padding: var(--s2) var(--s2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--paper);
+  color: inherit;
+  font: inherit;
+  min-height: 36px;
+}
+
+.field__input:focus-visible {
+  outline: 2px solid var(--accent, #2563eb);
+  outline-offset: 1px;
+}
+
+/* A wide table must scroll inside its own box. Letting the page scroll sideways
+   moves the navigation off screen, which is how a reader loses their place. */
+.table__scroll {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin-top: var(--s3);
+}
+
+.table__scroll .table {
+  margin-top: 0;
+  border: 0;
+}
+
+/* ---------------------------------------------------------------- audit trail */
+.audit__chain {
+  padding: var(--s3);
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  margin-bottom: var(--s3);
+  font-size: 13px;
+}
+
+.audit__chain--ok {
+  border-color: #16a34a55;
+  background: #16a34a0f;
+}
+
+.audit__chain--broken {
+  border-color: #dc262688;
+  background: #dc26260f;
+}
+
+.audit__head {
+  margin: var(--s2) 0 0;
+  font-size: 12px;
+  color: var(--muted);
+  word-break: break-all;
+}
+
+.audit__seq {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.audit__kind {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.audit__detail {
+  font-size: 12px;
+  display: block;
+  max-width: 44ch;
+  overflow-wrap: anywhere;
+}
+
+/* ---------------------------------------------------------------- version diff */
+.diff__heading {
+  font-size: 14px;
+  margin: var(--s4) 0 var(--s2);
+}
+
+.diff__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+}
+
+.diff__change {
+  display: flex;
+  gap: var(--s2);
+  align-items: baseline;
+  flex-wrap: wrap;
+  padding: var(--s2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--paper);
+  font-size: 13px;
+}
+
+.diff__kind {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--line);
+}
+
+.diff__kind--added {
+  background: #16a34a22;
+  color: #15803d;
+}
+
+.diff__kind--removed {
+  background: #dc262622;
+  color: #b91c1c;
+}
+
+.diff__subject {
+  font-family: var(--mono, ui-monospace, monospace);
+}
+
+.diff__detail {
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.diff__text {
+  overflow-x: auto;
+  max-height: 60vh;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: var(--s2);
+  background: var(--paper);
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.diff__line--added {
+  background: #16a34a14;
+  display: block;
+}
+
+.diff__line--removed {
+  background: #dc262614;
+  display: block;
+}
+
+/* ---------------------------------------------------------------- coverage */
+.cov {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: var(--s3);
+  margin-top: var(--s3);
+  background: var(--paper);
+}
+
+.cov__head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s2);
+  flex-wrap: wrap;
+}
+
+.cov__figure {
+  font-size: 24px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.cov__figure--under {
+  color: #b91c1c;
+}
+
+.cov__bar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--line);
+  overflow: hidden;
+  margin: var(--s2) 0;
+}
+
+.cov__bar span {
+  display: block;
+  height: 100%;
+  background: #16a34a;
+}
+
+.cov__bar--under span {
+  background: #dc2626;
+}
+
+.cov__kinds {
+  display: flex;
+  gap: var(--s4);
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0 0 var(--s2);
+}
+
+.cov__uncovered {
+  margin: var(--s2) 0 0;
+  font-size: 12px;
+}
+
+.cov__uncovered code {
+  display: inline-block;
+  margin: 2px 4px 2px 0;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: #dc26260f;
+  border: 1px solid #dc262633;
+}
