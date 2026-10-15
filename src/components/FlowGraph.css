@@ -1,0 +1,123 @@
+/* The policy flow as a left-to-right pipeline (M5-03).
+   Scrolls inside its own container: a ten-stage policy must not make the page scroll sideways. */
+.flow {
+  margin: var(--s3) 0 var(--s4);
+}
+
+.flow__track {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  overflow-x: auto;
+  padding-bottom: var(--s2);
+}
+
+.flow__stage-wrap {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.flow__stage {
+  min-width: 190px;
+  max-width: 260px;
+  padding: var(--s3);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+}
+
+/* A knockout stage is where the flow can end, so it is bordered in the fail colour — and it also
+   carries the word KNOCKOUT and its exit sentence, because colour is never the only signal. */
+.flow__stage--knockout {
+  border-color: var(--fail);
+  border-width: 2px;
+}
+
+.flow__stage-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 0 0 var(--s2);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.flow__stage-index {
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.flow__steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flow__step {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 2px 0;
+  font-size: 0.75rem;
+}
+
+.flow__step-agg {
+  font-size: 0.65rem;
+  color: var(--muted);
+}
+
+.flow__step-mark {
+  padding: 0 4px;
+  font-size: 0.65rem;
+  color: var(--dev);
+  background: var(--dev-bg);
+  border-radius: var(--radius-pill);
+}
+
+.flow__exit {
+  margin: var(--s2) 0 0;
+  padding-top: var(--s2);
+  border-top: 1px dashed var(--fail);
+  font-size: 0.7rem;
+  color: var(--fail);
+}
+
+.flow__arrow {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 12px;
+  color: var(--muted);
+}
+
+.flow__terminal {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 150px;
+  padding: var(--s3);
+  background: var(--soft);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+}
+
+.flow__terminal-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.flow__terminal-detail {
+  margin-top: 4px;
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+
+.chip--stop {
+  color: var(--fail);
+  background: var(--fail-bg);
+}

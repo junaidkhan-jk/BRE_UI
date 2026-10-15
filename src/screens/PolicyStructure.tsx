@@ -15,6 +15,7 @@ import {
 } from '../api/runs';
 import { usingFixtures } from '../api/fixtures';
 import { Empty, Loading } from '../components/ScreenState';
+import { FlowGraph } from '../components/FlowGraph';
 import { StatusPill } from '../components/StatusPill';
 
 import './screens.css';
@@ -178,30 +179,11 @@ export function PolicyStructure(): React.JSX.Element {
           {(ir.flow?.stages ?? []).length === 0 ? (
             <Empty title="This version declares no flow." />
           ) : (
-            <div className="timeline">
-              {(ir.flow?.stages ?? []).map((stage) => (
-                <div key={stage.name} className="timeline__item">
-                  <p className="timeline__head">
-                    {stage.name}
-                    {stage.knockout ? <span className="chip">KNOCKOUT</span> : null}
-                  </p>
-                  <ul className="run__list">
-                    {(stage.steps ?? []).map((step) => (
-                      <li key={step.ref}>
-                        <code>{step.ref}</code>
-                        <span className="meta"> {step.aggregate?.kind ?? 'WORST'}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
+            <FlowGraph
+              flow={ir.flow}
+              uncoveredRuleStatuses={detail?.coverage?.uncoveredRuleStatuses ?? []}
+            />
           )}
-          <p className="run__note">
-            A <strong>knockout</strong> stage stops evaluation after any FAIL in it, and every later
-            step is reported NOT_APPLICABLE. The whole stage runs first, so a knockout does not hide
-            a second finding alongside it.
-          </p>
 
           <h2 className="diff__heading">Decision tables ({(ir.decisionTables ?? []).length})</h2>
           {(ir.decisionTables ?? []).map((table) => (

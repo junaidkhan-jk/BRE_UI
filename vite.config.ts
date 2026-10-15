@@ -24,6 +24,18 @@ import react from '@vitejs/plugin-react';
 function classicScriptTag() {
   return {
     name: 'bre-classic-script-tag',
+    // BUILD ONLY, and this is not a refinement — without it `npm run dev` is broken.
+    //
+    // The dev server serves real ES modules and relies on `type="module"` to do it, so stripping
+    // the attribute there makes the browser parse the entry as a classic script and fail on the
+    // first line: "Cannot use import statement outside a module", a blank page, nothing in the
+    // terminal. The transform exists for the BUILT file, where the bundle is an IIFE and the
+    // attribute is not merely redundant but actively breaks file:// loading.
+    //
+    // So the two environments need opposite things from the same tag, and the plugin applied to
+    // both. The devstack prints `npm run dev` as the way to run the Studio against a registry,
+    // which is the command that did not work.
+    apply: 'build' as const,
     transformIndexHtml(html: string) {
       return html
         .replace(/<script\s+type="module"\s+crossorigin\s+/g, '<script defer ')
