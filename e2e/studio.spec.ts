@@ -42,6 +42,7 @@ test.describe('the shell', () => {
       '#/policies',
       '#/simulate',
       '#/reviews',
+      '#/deployments',
       '#/decisions',
       '#/diff',
       '#/audit',
@@ -59,7 +60,8 @@ test.describe('the shell', () => {
     await page.goto('/');
     for (const [label, path] of [
       ['Simulator', '#/simulate'],
-      ['Approval Queue', '#/reviews'],
+      ['Review Inbox', '#/reviews'],
+      ['Deployments', '#/deployments'],
       ['Decision Trace', '#/decisions'],
       ['Compare Versions', '#/diff'],
       ['Audit Trail', '#/audit'],
@@ -105,6 +107,39 @@ test.describe('Audit Trail', () => {
     // An audit log with an append button is a log a user can author. There is no such endpoint and
     // there must be no such control; this fails if somebody adds one.
     await expect(page.getByRole('button', { name: /add|new|create|delete|edit/i })).toHaveCount(0);
+  });
+});
+
+test.describe('Review Inbox', () => {
+  test('replaced the fixture queue and says why it is empty', async ({ page }) => {
+    await page.goto('/#/reviews');
+
+    await expect(page.getByRole('heading', { name: /Review inbox/i })).toBeVisible();
+    // The screen it replaced showed three hard-coded submissions with names and a badge count.
+    // A reviewer who approves a fixture learns that approving is a formality.
+    await expect(page.getByText(/Priya N\./)).toHaveCount(0);
+    await expect(page.getByText(/No registry is connected/i)).toBeVisible();
+  });
+});
+
+test.describe('Deployment Console', () => {
+  test('shows the three environments and requires a reason', async ({ page }) => {
+    await page.goto('/#/deployments');
+
+    await expect(page.getByRole('heading', { name: /Deployment console/i })).toBeVisible();
+    for (const env of ['DEV', 'UAT', 'PROD']) {
+      await expect(page.getByRole('button', { name: env, exact: true })).toBeVisible();
+    }
+    // Request stays disabled until there is a reason: a deployment with no recorded reason is one
+    // nobody can explain later.
+    await expect(page.getByRole('button', { name: 'Request' })).toBeDisabled();
+  });
+
+  test('explains that a future effective date means SCHEDULED, not ACTIVE', async ({ page }) => {
+    await page.goto('/#/deployments');
+
+    await expect(page.getByText(/waits in SCHEDULED/i)).toBeVisible();
+    await expect(page.getByText(/rollback is a new deployment/i)).toBeVisible();
   });
 });
 

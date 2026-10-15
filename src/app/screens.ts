@@ -41,10 +41,18 @@ export const SCREENS: readonly Screen[] = [
   },
   {
     id: 'approvals',
-    label: 'Approval Queue',
+    // "Review inbox" rather than "Approval Queue": the screen is where a change is READ, and
+    // calling it a queue of approvals describes the outcome somebody is hoping for rather than
+    // the job. The badge is gone with it — it was a hard-coded 3.
+    label: 'Review Inbox',
     path: '/reviews',
     trd: ['U12'],
-    badge: 3,
+  },
+  {
+    id: 'deployments',
+    label: 'Deployments',
+    path: '/deployments',
+    trd: ['U13'],
   },
   {
     id: 'trace',

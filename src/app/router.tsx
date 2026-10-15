@@ -2,11 +2,12 @@ import { createHashRouter, Navigate } from 'react-router-dom';
 
 import { AppShell } from './AppShell';
 import { RequireSession } from './RequireSession';
-import { ApprovalQueue } from '../screens/ApprovalQueue';
+import { DeploymentConsole } from '../screens/DeploymentConsole';
 import { AuditTrail } from '../screens/AuditTrail';
 import { DecisionTrace } from '../screens/DecisionTrace';
 import { RuleEditor } from '../screens/RuleEditor';
 import { RuleRepository } from '../screens/RuleRepository';
+import { ReviewInbox } from '../screens/ReviewInbox';
 import { SharedAssets } from '../screens/SharedAssets';
 import { Simulator } from '../screens/Simulator';
 import { VersionDiff } from '../screens/VersionDiff';
@@ -49,7 +50,8 @@ export const router = createHashRouter([
       { path: 'policies', element: <RuleRepository /> },
       { path: 'policies/:code/edit', element: <RuleEditor /> },
       { path: 'simulate', element: <Simulator /> },
-      { path: 'reviews', element: <ApprovalQueue /> },
+      { path: 'reviews', element: <ReviewInbox /> },
+      { path: 'deployments', element: <DeploymentConsole /> },
       { path: 'diff', element: <VersionDiff /> },
       // The same screen reachable from a policy, so a link out of the repository can carry which
       // policy was being read. The screen's own pickers still apply.

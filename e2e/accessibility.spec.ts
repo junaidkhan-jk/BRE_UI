@@ -18,7 +18,8 @@ import { signIn } from './session';
 const SCREENS = [
   ['Rule Repository', '#/policies'],
   ['Simulator', '#/simulate'],
-  ['Approval Queue', '#/reviews'],
+  ['Review Inbox', '#/reviews'],
+  ['Deployment Console', '#/deployments'],
   ['Decision Trace', '#/decisions'],
   ['Compare Versions', '#/diff'],
   ['Audit Trail', '#/audit'],

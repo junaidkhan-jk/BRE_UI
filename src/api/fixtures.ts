@@ -1,7 +1,6 @@
 import type {
   DecisionSummary,
   DecisionTrace,
-  ReviewItem,
   RuleSummary,
   RuleVersion,
   SimulationResult,
@@ -157,50 +156,6 @@ export function historyOf(rule: RuleSummary): readonly RuleVersion[] {
   }
   return versions;
 }
-
-export const REVIEWS: readonly ReviewItem[] = [
-  {
-    code: 'JLG-049',
-    name: 'Household FOIR',
-    fromVersion: 2,
-    toVersion: 3,
-    category: 'Affordability',
-    author: 'Rahul M.',
-    submittedAt: '15 Sep 2026',
-    simulated: true,
-    testsPassed: 18,
-    testsTotal: 18,
-    changeSummary:
-      'FOIR threshold raised from 40% to 45% for borrowers in their second or later MFI cycle, with a repayment-track-record sub-rule added.',
-  },
-  {
-    code: 'IND-012',
-    name: 'Bureau Score Cut-off',
-    fromVersion: 4,
-    toVersion: 5,
-    category: 'Credit',
-    author: 'Priya N.',
-    submittedAt: '15 Sep 2026',
-    simulated: true,
-    testsPassed: 11,
-    testsTotal: 12,
-    changeSummary:
-      'Minimum CIBIL lowered from 675 to 650 for the micro-enterprise segment only. Delinquency flag check unchanged.',
-  },
-  {
-    code: 'GRP-002',
-    name: 'JLG Group Formation',
-    fromVersion: 0,
-    toVersion: 1,
-    category: 'Group Policy',
-    author: 'Priya N.',
-    submittedAt: '12 Sep 2026',
-    simulated: false,
-    testsPassed: 4,
-    testsTotal: 7,
-    changeSummary: 'New rule: groups must have between 5 and 10 members from the same village.',
-  },
-];
 
 export const SIMULATION: SimulationResult = {
   applications: 2500,
