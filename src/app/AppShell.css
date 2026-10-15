@@ -153,3 +153,26 @@
   outline: 2px solid var(--chrome-ink);
   outline-offset: 2px;
 }
+
+/* Light / dark / system (M5-01). In the header beside the account, because it is a property of
+   this screen rather than of the account. */
+.shell__theme {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.shell__theme-label {
+  font-size: 0.75rem;
+  color: var(--chrome-muted);
+}
+
+.shell__theme-select {
+  font: inherit;
+  font-size: 0.78rem;
+  padding: 2px 4px;
+  color: var(--chrome-ink);
+  background: var(--chrome);
+  border: 1px solid var(--chrome-line);
+  border-radius: var(--radius-sm);
+}

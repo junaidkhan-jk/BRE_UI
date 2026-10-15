@@ -28,37 +28,40 @@ const SCREENS = [
   ['Policy Source', '#/edit'],
 ] as const;
 
-for (const [name, route] of SCREENS) {
-  test(`${name} has no WCAG A or AA violations`, async ({ page }) => {
-    await page.goto('/' + route);
-
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-      .analyze();
-
-    // Printed before the assertion so a failure names what to fix rather than just a count.
-    if (results.violations.length > 0) {
-      console.log(
-        results.violations
-          .map(
-            (v) =>
-              `${v.id} (${v.impact}): ${v.help}\n  ${v.nodes
-                .map((n) => n.target.join(' '))
-                .join('\n  ')}`,
-          )
-          .join('\n\n'),
-      );
-    }
-    expect(results.violations, `${name} must be usable by everyone who has to use it`).toEqual([]);
-  });
-}
-
-// Every screen is behind the session now, so each test starts signed in. The login screen's own
-// behaviour — the form, the announced error, the guard that redirects — is tested in login.spec.ts
-// without one.
 test.beforeEach(async ({ page }) => {
   await signIn(page);
 });
+
+// Both themes, because a dark palette is a second set of colours and contrast is the thing axe
+// measures. A theme that renders is not a theme that passes: the first dark values tried here were
+// Tailwind's 400-weights, which look right on a dark surface and land under 4.5:1 — exactly the
+// mistake the light palette's comment in tokens.css records being made once already.
+const THEMES = ['light', 'dark'] as const;
+
+for (const theme of THEMES) {
+  test.describe(`${theme} theme`, () => {
+    test.use({ colorScheme: theme });
+
+    for (const [name, route] of SCREENS) {
+      test(`${name} has no WCAG A or AA violations`, async ({ page }) => {
+        await page.goto('/' + route);
+
+        const results = await new AxeBuilder({ page })
+          .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+          .analyze();
+
+        if (results.violations.length > 0) {
+          console.log(
+            results.violations
+              .map((v) => `${theme}: ${v.id} (${v.impact}): ${v.help}`)
+              .join('\n'),
+          );
+        }
+        expect(results.violations).toEqual([]);
+      });
+    }
+  });
+}
 
 test('status is never conveyed by colour alone', async ({ page }) => {
   await page.goto('/#/decisions');

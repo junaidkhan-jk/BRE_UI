@@ -22,6 +22,7 @@ import {
 import { assetUsage, type AssetUsage } from '../api/assets';
 import { useSearchParams } from 'react-router-dom';
 
+import { rupees } from '../app/format';
 import { useSession } from '../app/SessionContext';
 import { usingFixtures } from '../api/fixtures';
 import { Empty, Loading } from '../components/ScreenState';
@@ -45,8 +46,8 @@ const KINDS: readonly AssetKind[] = [
  * and who approved it, it hides Approve from the author rather than disabling it, and it says in
  * plain words that nothing here affects a policy until a second person has approved it.
  *
- * **Effective dating is shown as what it is — a table of dates.** A cap of ₹200,000 until 1 April
- * and ₹300,000 after it is two rows, both true, and which one applies depends on the date the
+ * **Effective dating is shown as what it is — a table of dates.** A cap of ₹2,00,000 until 1 April
+ * and ₹3,00,000 after it is two rows, both true, and which one applies depends on the date the
  * application is decided. Rendering only "the current value" would hide the row that keeps last
  * month's decisions correct, which is the row an auditor asks about.
  *
@@ -547,7 +548,7 @@ function ParameterEditor({
 
       <p className="run__note">
         A value is <strong>effective-dated</strong>, not current: &ldquo;until&rdquo; is exclusive
-        and blank means open-ended, so ₹200,000 until 1 April and ₹300,000 from 1 April meet
+        and blank means open-ended, so ₹2,00,000 until 1 April and ₹3,00,000 from 1 April meet
         without overlapping. An application decided in March is decided by March&rsquo;s figure
         forever, which is what makes a replay honest. A{' '}
         <strong>regulatory</strong> parameter must carry where the figure comes from and when it is
@@ -1155,7 +1156,7 @@ function MatrixEditor({
                       aria-label="Amount above"
                     />
                   ) : (
-                    (entry.amountAbove ?? '—')
+                    rupees(entry.amountAbove)
                   )}
                 </td>
                 <td>
@@ -1170,7 +1171,7 @@ function MatrixEditor({
                       aria-label="Amount up to"
                     />
                   ) : (
-                    (entry.amountUpTo ?? '—')
+                    rupees(entry.amountUpTo)
                   )}
                 </td>
                 <td>

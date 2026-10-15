@@ -132,3 +132,63 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/*
+ * Dark theme (M5-01).
+ *
+ * One block, not two. The obvious shape is a `prefers-color-scheme` media query for the system
+ * setting PLUS a `[data-theme='dark']` selector for the toggle — which means every colour written
+ * twice, and a token that drifts between the two copies is a bug nobody sees until somebody
+ * switches. So the system preference is resolved in JS at boot (see app/theme.ts) and stamped on
+ * <html> as data-theme, and this is the only place dark values exist.
+ *
+ * The complete LIGHT palette stays on bare :root above, defined once. A token can therefore never
+ * exist only in a dark block and vanish in light.
+ *
+ * The contrast here is measured, not chosen, exactly as the light palette's comment says. Every
+ * status foreground below clears 4.5:1 on its own tinted background — a dark theme that fails AA
+ * is not a dark theme, it is the same product broken differently. `npm run e2e:a11y` audits it.
+ *
+ * Colour is still never the only signal: the pills carry their word in both themes.
+ */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --page: #0e0f12;
+  --chrome: #1a1c21;
+  --chrome-ink: #e8eaed;
+  --chrome-muted: #9aa1ae;
+  --chrome-line: #2c3038;
+
+  --bg: #15171b;
+  --paper: #1c1f24;
+  --ink: #e8eaed;
+
+  --muted: #a2a9b6;
+  --line: #2c3038;
+  --soft: #22252b;
+  --fill: #2c3038;
+  --side: #14161f;
+  --code-bg: #1a1c21;
+
+  --pass: #5cd98a;
+  --pass-bg: #0d2c1a;
+  --dev: #f0b45e;
+  --dev-bg: #342509;
+  --fail: #f58b8b;
+  --fail-bg: #3a1618;
+
+  --draft: #a2a9b6;
+  --draft-bg: #24272d;
+  --superseded: #70778a;
+
+  --ai: #b79cf2;
+  --ai-tint: #241d3a;
+
+  --anno: #7aa7f7;
+
+  /* Deeper, because a shadow tuned for a white page is invisible on a dark one and a border is
+     what separates surfaces here instead. */
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 40%);
+  --shadow-2: 0 4px 12px rgb(0 0 0 / 50%);
+}

@@ -1,8 +1,10 @@
+import { useEffect, useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 
 import { usingFixtures } from '../api/fixtures';
 import { SCREENS } from './screens';
 import { useSession } from './SessionContext';
+import { applyTheme, storedChoice, watchSystem, type ThemeChoice } from './theme';
 
 import './AppShell.css';
 
@@ -79,6 +81,7 @@ export function AppShell(): React.JSX.Element {
                   SoD override enabled
                 </span>
               ) : null}
+              <ThemeToggle />
               <button className="shell__signout" type="button" onClick={() => void signOut()}>
                 Sign out
               </button>
@@ -90,5 +93,39 @@ export function AppShell(): React.JSX.Element {
         </main>
       </div>
     </div>
+  );
+}
+
+/**
+ * Light, dark, or whatever the system says.
+ *
+ * A select rather than a two-state button, because "follow my system" is a real third answer and
+ * a toggle cannot express it — a button that flips light/dark silently discards the preference
+ * somebody set once for every application on their machine.
+ */
+function ThemeToggle(): React.JSX.Element {
+  const [choice, setChoice] = useState<ThemeChoice>(storedChoice);
+
+  useEffect(() => {
+    applyTheme(choice);
+    // Keeps following the system after sunset. Without this, somebody whose machine switches at
+    // dusk keeps the morning's theme until they reload, which on a tool left open all day is most
+    // of the evening.
+    return watchSystem(choice, () => applyTheme(choice));
+  }, [choice]);
+
+  return (
+    <label className="shell__theme">
+      <span className="shell__theme-label">Theme</span>
+      <select
+        className="shell__theme-select"
+        value={choice}
+        onChange={(event) => setChoice(event.target.value as ThemeChoice)}
+      >
+        <option value="system">System</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </label>
   );
 }
