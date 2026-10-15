@@ -53,7 +53,15 @@ export function Login(): React.JSX.Element {
 
   return (
     <main className="login">
-      <form className="login__card" onSubmit={submit} noValidate>
+      {/* `void`, because onSubmit expects void and submit is async: an unhandled rejection in a
+            React event handler is swallowed silently, and submit already catches its own. */}
+      <form
+        className="login__card"
+        onSubmit={(event) => {
+          void submit(event);
+        }}
+        noValidate
+      >
         <h1 className="login__brand">
           BRE <span className="login__brand-dim">Studio</span>
         </h1>

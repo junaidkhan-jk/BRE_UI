@@ -1,4 +1,6 @@
-import { defineConfig } from 'vite';
+// From vitest/config rather than vite: the `test` block below is not part of vite's own
+// UserConfig, and importing defineConfig from 'vite' makes `tsc -b` reject it.
+import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 
 /**
@@ -47,6 +49,18 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
+  },
+  // Unit tests only.
+  //
+  // Vitest's default `include` matches **/*.spec.ts, which swept up the Playwright specs under
+  // e2e/ — where they cannot run: they got as far as calling test.describe() and failed with
+  // "Playwright Test did not expect test.describe() to be called here". So `npm test` has always
+  // reported three failed files and zero tests, which reads like a broken suite rather than an
+  // empty one, and buried the signal that there are no unit tests yet.
+  //
+  // The e2e suite is `npm run e2e` and is what actually covers these screens.
+  test: {
+    include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
   },
   build: {
     outDir: 'dist',
