@@ -47,6 +47,7 @@ test.describe('the shell', () => {
       '#/diff',
       '#/audit',
       '#/assets',
+      '#/structure',
     ]) {
       await page.goto('/' + route);
       await expect(
@@ -66,6 +67,7 @@ test.describe('the shell', () => {
       ['Compare Versions', '#/diff'],
       ['Audit Trail', '#/audit'],
       ['Shared Assets', '#/assets'],
+      ['Policy Structure', '#/structure'],
       ['Rule Repository', '#/policies'],
     ] as const) {
       await page.getByRole('link', { name: new RegExp(label) }).click();
@@ -107,6 +109,18 @@ test.describe('Audit Trail', () => {
     // An audit log with an append button is a log a user can author. There is no such endpoint and
     // there must be no such control; this fails if somebody adds one.
     await expect(page.getByRole('button', { name: /add|new|create|delete|edit/i })).toHaveCount(0);
+  });
+});
+
+test.describe('Policy Structure', () => {
+  test('says it is read-only, and why', async ({ page }) => {
+    await page.goto('/#/structure');
+
+    await expect(page.getByRole('heading', { name: /Policy structure/i })).toBeVisible();
+    // The reason matters more than the fact: a grid editor would have to regenerate the source,
+    // and the comment explaining a threshold does not survive that.
+    await expect(page.getByText(/Read-only/i)).toBeVisible();
+    await expect(page.getByText(/does not survive a round trip/i)).toBeVisible();
   });
 });
 

@@ -227,6 +227,74 @@ export async function readSource(policyCode: string, version: number): Promise<s
   return response.text();
 }
 
+/** A decision table as the IR carries it. */
+export interface TableIr {
+  readonly code: string;
+  readonly name?: string;
+  readonly scope?: string;
+  readonly hitPolicy?: { readonly kind: string; readonly op?: string; readonly collectOutput?: string };
+  readonly inputs?: readonly { readonly name: string; readonly expr: string }[];
+  readonly outputs?: readonly { readonly name: string; readonly type: string }[];
+  readonly rows?: readonly {
+    readonly when?: readonly string[];
+    readonly label?: string;
+    readonly then?: {
+      readonly status?: string;
+      readonly reasonCode?: string;
+      readonly deviationType?: string;
+      readonly outputs?: Readonly<Record<string, string>>;
+    };
+  }[];
+}
+
+/** A scorecard as the IR carries it. */
+export interface ScorecardIr {
+  readonly code: string;
+  readonly name?: string;
+  readonly baseScore?: number;
+  readonly adverseReasons?: number;
+  readonly characteristics?: readonly {
+    readonly name: string;
+    readonly expr: string;
+    readonly reasonCode?: string;
+    readonly bins?: readonly { readonly when: string; readonly points: number; readonly reasonCode?: string }[];
+  }[];
+}
+
+/** A rule as the IR carries it. */
+export interface RuleIr {
+  readonly code: string;
+  readonly name?: string;
+  readonly scope?: string;
+  readonly when?: string;
+  readonly check: string;
+  readonly onFail?: { readonly status?: string; readonly reasonCode?: string; readonly deviationType?: string };
+  readonly onMissing?: { readonly policy?: string; readonly reasonCode?: string };
+}
+
+/** The compiled policy. */
+export interface PolicyIr {
+  readonly policy?: { readonly code?: string; readonly stage?: string };
+  readonly variables?: readonly { readonly name: string; readonly type: string; readonly scope: string; readonly expr: string }[];
+  readonly rules?: readonly RuleIr[];
+  readonly decisionTables?: readonly TableIr[];
+  readonly scorecards?: readonly ScorecardIr[];
+  readonly flow?: {
+    readonly stages?: readonly {
+      readonly name: string;
+      readonly knockout?: boolean;
+      readonly steps?: readonly { readonly ref: string; readonly aggregate?: { readonly kind?: string } }[];
+    }[];
+  };
+}
+
+/** The compiled policy, for the structure and grid views. */
+export function readIr(policyCode: string, version: number): Promise<PolicyIr> {
+  return call<PolicyIr>(
+    `/v1/policies/${encodeURIComponent(policyCode)}/versions/${version}/ir`,
+  );
+}
+
 /** One version with its compile report, coverage and submit evidence. */
 export function readVersion(policyCode: string, version: number): Promise<VersionDetail> {
   return call<VersionDetail>(

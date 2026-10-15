@@ -7,6 +7,7 @@ import { AuditTrail } from '../screens/AuditTrail';
 import { DecisionTrace } from '../screens/DecisionTrace';
 import { RuleEditor } from '../screens/RuleEditor';
 import { RuleRepository } from '../screens/RuleRepository';
+import { PolicyStructure } from '../screens/PolicyStructure';
 import { ReviewInbox } from '../screens/ReviewInbox';
 import { SharedAssets } from '../screens/SharedAssets';
 import { Simulator } from '../screens/Simulator';
@@ -57,6 +58,7 @@ export const router = createHashRouter([
       // policy was being read. The screen's own pickers still apply.
       { path: 'policies/:code/diff', element: <VersionDiff /> },
       { path: 'decisions', element: <DecisionTrace /> },
+      { path: 'structure', element: <PolicyStructure /> },
       { path: 'assets', element: <SharedAssets /> },
       { path: 'audit', element: <AuditTrail /> },
       {

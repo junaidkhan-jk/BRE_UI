@@ -34,6 +34,12 @@ export const SCREENS: readonly Screen[] = [
     trd: ['U3', 'U4'],
   },
   {
+    id: 'structure',
+    label: 'Policy Structure',
+    path: '/structure',
+    trd: ['U3', 'U5', 'U6', 'U7'],
+  },
+  {
     id: 'simulator',
     label: 'Simulator',
     path: '/simulate',
