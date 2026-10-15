@@ -161,6 +161,28 @@ export function readAsset(
   );
 }
 
+/** One policy version that pins an asset, and where it is live. */
+export interface AssetUsage {
+  readonly policyCode: string;
+  readonly policyVersion: number;
+  /** The asset version THAT policy version pinned — not necessarily the latest. */
+  readonly assetVersion: number;
+  readonly policyStatus: string;
+  /** Comma-separated environments where it is ACTIVE or SCHEDULED; empty when deployed nowhere. */
+  readonly liveEnvironments: string;
+}
+
+/**
+ * Which policy versions pin this asset.
+ *
+ * Not version-scoped, because the question before an edit is "who depends on this asset", not "who
+ * depends on version 3". Each row carries the version it pinned, so a policy still on an earlier
+ * version shows as exactly that.
+ */
+export function assetUsage(kind: AssetKind, code: string): Promise<AssetUsage[]> {
+  return call<AssetUsage[]>(`/v1/assets/${kind}/${encodeURIComponent(code)}/usage`);
+}
+
 /**
  * Opens a DRAFT, cloning the latest approved version by default.
  *

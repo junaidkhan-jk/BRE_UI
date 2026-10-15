@@ -19,6 +19,7 @@ import {
   saveAsset,
   submitAsset,
 } from '../api/assets';
+import { assetUsage, type AssetUsage } from '../api/assets';
 import { useSession } from '../app/SessionContext';
 import { usingFixtures } from '../api/fixtures';
 import { Empty, Loading } from '../components/ScreenState';
@@ -65,6 +66,7 @@ export function SharedAssets(): React.JSX.Element {
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [usage, setUsage] = useState<readonly AssetUsage[] | null>(null);
 
   const refresh = useCallback(
     async (keep?: AssetVersion | null) => {
@@ -117,6 +119,26 @@ export function SharedAssets(): React.JSX.Element {
       setError(messageOf(caught));
     }
   }
+
+  // Loaded on selection rather than with the list: it is a three-table join per asset, and the
+  // list screen shows forty of them.
+  useEffect(() => {
+    if (!selected || usingFixtures) {
+      setUsage(null);
+      return;
+    }
+    let live = true;
+    assetUsage(selected.kind, selected.code)
+      .then((found) => {
+        if (live) setUsage(found);
+      })
+      .catch(() => {
+        if (live) setUsage([]);
+      });
+    return () => {
+      live = false;
+    };
+  }, [selected]);
 
   const editable = selected?.status === 'DRAFT';
   // Maker-checker, visible: the author of a version is the one person who must not approve it.
@@ -376,6 +398,8 @@ export function SharedAssets(): React.JSX.Element {
               exactly as the policies pinning it were signed against.
             </p>
           ) : null}
+
+          <UsagePanel usage={usage} />
 
           {selected.kind === 'PARAMETER_SET' ? (
             <ParameterEditor
@@ -1202,4 +1226,68 @@ function today(): string {
 
 function messageOf(caught: unknown): string {
   return caught instanceof Error ? caught.message : 'Something went wrong.';
+}
+
+/**
+ * Which policy versions pin this asset, and which of them are live.
+ *
+ * Shown on every asset, not only a draft, because the question it answers arrives before the edit:
+ * raising a cap here reaches no borrower until each dependent policy gets a new version of its own
+ * and its own two approvals. An asset screen that shows the asset and not its dependents invites
+ * the opposite assumption — that editing the asset edits the decision.
+ */
+function UsagePanel({ usage }: { usage: readonly AssetUsage[] | null }): React.JSX.Element | null {
+  if (usage === null) return null;
+
+  const live = usage.filter((row) => row.liveEnvironments !== '');
+
+  return (
+    <div className="usage">
+      <h3 className="usage__title">Pinned by</h3>
+      {usage.length === 0 ? (
+        <p className="run__note">
+          No policy version pins this asset yet. A change here reaches nothing until one does.
+        </p>
+      ) : (
+        <>
+          <p className="run__note">
+            {usage.length} policy {usage.length === 1 ? 'version' : 'versions'} pin this asset
+            {live.length > 0 ? (
+              <>
+                , <strong>{live.length}</strong> of them currently serving
+              </>
+            ) : null}
+            . Each pinned an exact version, so none of them changes when this one does &mdash; every
+            one needs a new policy version, and its own approvals, to pick a change up.
+          </p>
+          <table className="table table--tight">
+            <thead>
+              <tr>
+                <th scope="col">Policy</th>
+                <th scope="col">Version</th>
+                <th scope="col">Pinned</th>
+                <th scope="col">Status</th>
+                <th scope="col">Live in</th>
+              </tr>
+            </thead>
+            <tbody>
+              {usage.map((row) => (
+                <tr key={`${row.policyCode}:${row.policyVersion}`}>
+                  <td>
+                    <code>{row.policyCode}</code>
+                  </td>
+                  <td>v{row.policyVersion}</td>
+                  <td>@{row.assetVersion}</td>
+                  <td>
+                    <StatusPill status={row.policyStatus} />
+                  </td>
+                  <td>{row.liveEnvironments === '' ? '\u2014' : row.liveEnvironments}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
+    </div>
+  );
 }

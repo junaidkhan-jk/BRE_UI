@@ -943,3 +943,17 @@
   background: #dc26260f;
   border: 1px solid #dc262633;
 }
+
+/* Which policy versions pin a shared asset (M5-07). Set apart from the editor above it, because
+   it is about everything EXCEPT the version on screen. */
+.usage {
+  margin-top: var(--s4);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--line);
+}
+
+.usage__title {
+  margin: 0 0 var(--s2);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
