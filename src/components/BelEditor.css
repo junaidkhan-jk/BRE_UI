@@ -1,0 +1,34 @@
+/* The BEL editor. Monaco brings its own styling; these are the frame and the status line. */
+.bel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--paper);
+}
+
+.bel__host {
+  height: 220px;
+}
+
+.bel__status {
+  margin: 0;
+  padding: var(--s1) var(--s2);
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  background: var(--paper);
+}
+
+/* Never colour alone: each state carries its own words, so a status is readable without it. */
+.bel__ok {
+  color: #15803d;
+}
+
+.bel__bad {
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.bel__idle,
+.bel__offline {
+  color: var(--muted);
+}

@@ -5,7 +5,7 @@ import { RequireSession } from './RequireSession';
 import { DeploymentConsole } from '../screens/DeploymentConsole';
 import { AuditTrail } from '../screens/AuditTrail';
 import { DecisionTrace } from '../screens/DecisionTrace';
-import { RuleEditor } from '../screens/RuleEditor';
+import { SourceEditor } from '../screens/SourceEditor';
 import { RuleRepository } from '../screens/RuleRepository';
 import { PolicyStructure } from '../screens/PolicyStructure';
 import { ReviewInbox } from '../screens/ReviewInbox';
@@ -49,7 +49,8 @@ export const router = createHashRouter([
     children: [
       { index: true, element: <Navigate to="/policies" replace /> },
       { path: 'policies', element: <RuleRepository /> },
-      { path: 'policies/:code/edit', element: <RuleEditor /> },
+      { path: 'policies/:code/edit', element: <SourceEditor /> },
+      { path: 'edit', element: <SourceEditor /> },
       { path: 'simulate', element: <Simulator /> },
       { path: 'reviews', element: <ReviewInbox /> },
       { path: 'deployments', element: <DeploymentConsole /> },

@@ -48,6 +48,7 @@ test.describe('the shell', () => {
       '#/audit',
       '#/assets',
       '#/structure',
+      '#/edit',
     ]) {
       await page.goto('/' + route);
       await expect(
@@ -68,6 +69,7 @@ test.describe('the shell', () => {
       ['Audit Trail', '#/audit'],
       ['Shared Assets', '#/assets'],
       ['Policy Structure', '#/structure'],
+      ['Policy Source', '#/edit'],
       ['Rule Repository', '#/policies'],
     ] as const) {
       await page.getByRole('link', { name: new RegExp(label) }).click();
@@ -109,6 +111,28 @@ test.describe('Audit Trail', () => {
     // An audit log with an append button is a log a user can author. There is no such endpoint and
     // there must be no such control; this fails if somebody adds one.
     await expect(page.getByRole('button', { name: /add|new|create|delete|edit/i })).toHaveCount(0);
+  });
+});
+
+test.describe('Policy Source', () => {
+  test('explains why the source is text and the expressions are typed', async ({ page }) => {
+    await page.goto('/#/edit');
+
+    await expect(page.getByRole('heading', { name: /Policy source/i })).toBeVisible();
+    // The reason the source is edited as TEXT: the comment explaining a threshold is often the
+    // only record of a committee's reasoning, and the compiled form discards it.
+    await expect(page.getByText(/exact bytes you write/i)).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Expression workbench/i })).toBeVisible();
+  });
+
+  test('the editor degrades to a plain message with no language service', async ({ page }) => {
+    await page.goto('/#/edit');
+
+    // Monaco mounts; with no registry there is no type checking, and it says so rather than
+    // showing an editor that silently never validates.
+    await expect(page.getByText(/No language service|no language service/i)).toBeVisible({
+      timeout: 15000,
+    });
   });
 });
 

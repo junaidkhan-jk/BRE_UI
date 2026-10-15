@@ -25,6 +25,7 @@ const SCREENS = [
   ['Audit Trail', '#/audit'],
   ['Shared Assets', '#/assets'],
   ['Policy Structure', '#/structure'],
+  ['Policy Source', '#/edit'],
 ] as const;
 
 for (const [name, route] of SCREENS) {

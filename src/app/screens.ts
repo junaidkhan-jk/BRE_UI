@@ -29,8 +29,10 @@ export const SCREENS: readonly Screen[] = [
   },
   {
     id: 'editor',
-    label: 'Rule Editor',
-    path: '/policies/:code/edit',
+    // Paramless in the nav: the screen has its own policy and version pickers, and a nav item
+    // cannot carry a parameter it has no value for. /policies/:code/edit still routes here.
+    label: 'Policy Source',
+    path: '/edit',
     trd: ['U3', 'U4'],
   },
   {
