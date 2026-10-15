@@ -25,6 +25,8 @@ export interface Deployment {
     | 'CANCELLED';
   readonly approvals: number;
   readonly approvalsRequired: number;
+  /** When it takes effect. In the past for anything already ACTIVE. */
+  readonly effectiveFrom: string;
   readonly manifestVersion?: number;
 }
 
@@ -75,6 +77,16 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
 /** Deployments in one environment, newest first. */
 export function listDeployments(envCode: string): Promise<Deployment[]> {
   return call<Deployment[]>(`/v1/deployments?envCode=${encodeURIComponent(envCode)}`);
+}
+
+/**
+ * Everything waiting to take effect, across every environment, soonest first.
+ *
+ * Deliberately not scoped to an environment: "what lands this week" is the question, and no
+ * per-environment list can answer it.
+ */
+export function deploymentSchedule(): Promise<Deployment[]> {
+  return call<Deployment[]>('/v1/deployments/schedule');
 }
 
 /** Requests a deployment. Activates at once when the environment needs no approvals. */

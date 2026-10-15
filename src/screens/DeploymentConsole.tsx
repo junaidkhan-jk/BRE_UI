@@ -4,6 +4,7 @@ import {
   type Deployment,
   approveDeployment,
   cancelDeployment,
+  deploymentSchedule,
   listDeployments,
   requestDeployment,
   rollbackDeployment,
@@ -54,6 +55,7 @@ export function DeploymentConsole(): React.JSX.Element {
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [schedule, setSchedule] = useState<readonly Deployment[] | null>(null);
 
   const refresh = useCallback(async () => {
     if (usingFixtures) {
@@ -70,6 +72,26 @@ export function DeploymentConsole(): React.JSX.Element {
       setDeployments([]);
     });
   }, [envCode, refresh]);
+
+  // Not scoped to envCode, and reloaded whenever the environment list is: the schedule is the one
+  // view on this screen that is about every environment at once.
+  useEffect(() => {
+    if (usingFixtures) {
+      setSchedule([]);
+      return;
+    }
+    let live = true;
+    deploymentSchedule()
+      .then((due) => {
+        if (live) setSchedule(due);
+      })
+      .catch(() => {
+        if (live) setSchedule([]);
+      });
+    return () => {
+      live = false;
+    };
+  }, [deployments]);
 
   useEffect(() => {
     if (usingFixtures) {
@@ -254,6 +276,8 @@ export function DeploymentConsole(): React.JSX.Element {
         Request
       </button>
 
+      <Schedule schedule={schedule} />
+
       <h2 className="diff__heading">Deployments in {envCode}</h2>
 
       {deployments === null ? <Loading label="Reading deployments" /> : null}
@@ -371,6 +395,84 @@ export function DeploymentConsole(): React.JSX.Element {
         makes &ldquo;what was serving at 14:30 last Tuesday&rdquo; answerable.
       </p>
     </section>
+  );
+}
+
+/**
+ * What is due to take effect, across every environment, grouped by day.
+ *
+ * **Why this is not a month grid.** A calendar's twenty-eight empty cells are twenty-eight cells of
+ * nothing, and the thing a release manager needs to see is a collision: two credit-policy changes
+ * landing the same morning in the same environment. Grouped by day, a collision is two rows under
+ * one heading and is visible without counting. A month grid hides it in a cell.
+ *
+ * PENDING_APPROVAL rows sit here beside SCHEDULED ones, because a change dated for Monday that
+ * still needs a second approver on Friday afternoon is the row that needs somebody to act — and it
+ * is invisible on a list of what is already scheduled.
+ */
+function Schedule({
+  schedule,
+}: {
+  schedule: readonly Deployment[] | null;
+}): React.JSX.Element | null {
+  if (schedule === null || schedule.length === 0) return null;
+
+  const days = new Map<string, Deployment[]>();
+  for (const deployment of schedule) {
+    const day = deployment.effectiveFrom.slice(0, 10);
+    const existing = days.get(day);
+    if (existing) existing.push(deployment);
+    else days.set(day, [deployment]);
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+
+  return (
+    <div className="schedule">
+      <h2 className="diff__heading">Due to take effect</h2>
+      <p className="run__note">
+        Every environment, soonest first &mdash; a view no single environment&rsquo;s list can give.
+        Two changes under one heading and one environment is a collision: they will both be serving
+        that morning, and the second supersedes the first.
+      </p>
+      {[...days].map(([day, due]) => {
+        const collisions = new Set(
+          due
+            .map((deployment) => deployment.envCode)
+            .filter((env, index, all) => all.indexOf(env) !== index),
+        );
+        return (
+          <div className="schedule__day" key={day}>
+            <h3 className="schedule__date">
+              {day}
+              {day < today ? (
+                <span className="schedule__overdue"> &mdash; past due, not yet active</span>
+              ) : null}
+              {day === today ? <span className="schedule__today"> &mdash; today</span> : null}
+            </h3>
+            <ul className="schedule__list">
+              {due.map((deployment) => (
+                <li key={deployment.deploymentId}>
+                  <strong>{deployment.envCode}</strong> <code>{deployment.policyCode}</code>{' '}
+                  <StatusPill status={deployment.status} />
+                  {deployment.status === 'PENDING_APPROVAL' ? (
+                    <span className="schedule__warn">
+                      {' '}
+                      needs {deployment.approvalsRequired - deployment.approvals} more approval
+                      {deployment.approvalsRequired - deployment.approvals === 1 ? '' : 's'} before
+                      it can take effect
+                    </span>
+                  ) : null}
+                  {collisions.has(deployment.envCode) ? (
+                    <span className="schedule__warn"> &mdash; collides in {deployment.envCode}</span>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 

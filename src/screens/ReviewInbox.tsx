@@ -105,6 +105,17 @@ export function ReviewInbox(): React.JSX.Element {
   const isOwnWork =
     selected != null && session != null && selected.summary.editors.includes(session.subject);
 
+  // Marked on the list, not only inside the item.
+  //
+  // This is what was wanted from a "bulk approve" and is not the same thing. A reviewer with
+  // twenty submissions needs to know which ones they may act on BEFORE opening them — segregation
+  // of duties means an editor cannot approve their own version, so a queue that looks like twenty
+  // tasks can be eight. Approving twenty in one click is the opposite of a review and is not
+  // offered; knowing which eight are yours is.
+  const edited = (item: Pending): boolean =>
+    session != null && item.summary.editors.includes(session.subject);
+  const mine = (pending ?? []).filter((item) => !edited(item));
+
   return (
     <section>
       <header className="page__head">
@@ -114,7 +125,9 @@ export function ReviewInbox(): React.JSX.Element {
         </div>
         <div className="page__actions">
           <span className="run__meta">
-            {pending === null ? '' : `${pending.length} awaiting review`}
+            {pending === null
+              ? ''
+              : `${pending.length} awaiting review, ${mine.length} you can approve`}
           </span>
         </div>
       </header>
@@ -161,6 +174,7 @@ export function ReviewInbox(): React.JSX.Element {
                   <strong>{item.policyCode}</strong> v{item.summary.version}
                   <span className="queue__badges">
                     <StatusPill status={item.summary.status} />
+                    {edited(item) ? <span className="chip chip--muted">you edited this</span> : null}
                     {item.detail.coverage ? (
                       <span className="chip">{item.detail.coverage.overallPercent}% covered</span>
                     ) : null}
