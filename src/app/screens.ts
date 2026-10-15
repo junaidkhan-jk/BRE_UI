@@ -66,6 +66,12 @@ export const SCREENS: readonly Screen[] = [
     trd: ['U12'],
   },
   {
+    id: 'assets',
+    label: 'Shared Assets',
+    path: '/assets',
+    trd: ['U8'],
+  },
+  {
     id: 'audit',
     label: 'Audit Trail',
     path: '/audit',

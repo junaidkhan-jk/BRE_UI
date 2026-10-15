@@ -45,6 +45,7 @@ test.describe('the shell', () => {
       '#/decisions',
       '#/diff',
       '#/audit',
+      '#/assets',
     ]) {
       await page.goto('/' + route);
       await expect(
@@ -62,6 +63,7 @@ test.describe('the shell', () => {
       ['Decision Trace', '#/decisions'],
       ['Compare Versions', '#/diff'],
       ['Audit Trail', '#/audit'],
+      ['Shared Assets', '#/assets'],
       ['Rule Repository', '#/policies'],
     ] as const) {
       await page.getByRole('link', { name: new RegExp(label) }).click();
@@ -103,6 +105,31 @@ test.describe('Audit Trail', () => {
     // An audit log with an append button is a log a user can author. There is no such endpoint and
     // there must be no such control; this fails if somebody adds one.
     await expect(page.getByRole('button', { name: /add|new|create|delete|edit/i })).toHaveCount(0);
+  });
+});
+
+test.describe('Shared Assets', () => {
+  test('says what these are for before it shows any of them', async ({ page }) => {
+    await page.goto('/#/assets');
+
+    await expect(page.getByRole('heading', { name: /Shared assets/i })).toBeVisible();
+    // The sentence that matters: somebody opening this screen must understand that a number here
+    // changes what every policy pinning it decides, and that one person cannot do it alone.
+    await expect(page.getByText(/second person/i)).toBeVisible();
+    await expect(page.getByText(/No registry is connected/i)).toBeVisible();
+  });
+
+  test('offers all four kinds of asset', async ({ page }) => {
+    await page.goto('/#/assets');
+
+    for (const kind of [
+      'Parameter sets',
+      'Reference lists',
+      'Reason codes',
+      'Authority matrices',
+    ]) {
+      await expect(page.getByRole('button', { name: kind })).toBeVisible();
+    }
   });
 });
 
