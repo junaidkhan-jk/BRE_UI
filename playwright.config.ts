@@ -12,7 +12,16 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
+  // Capped, because the default is one worker per core and this suite is not CPU-bound — it is
+  // memory-bound. Every page parses the two-megabyte Monaco bundle, so sixteen workers on a
+  // sixteen-core machine ran the browser out of memory and failed a DIFFERENT test each run with
+  // "Target page, context or browser has been closed". Rotating failures that pass on a rerun are
+  // worse than a red suite: the rerun is read as proof there was nothing wrong.
+  workers: process.env.CI ? 2 : 4,
   forbidOnly: !!process.env.CI,
+  // Zero, deliberately. A retry turns a real race into an intermittent pass, and this suite's job
+  // is to catch exactly that class of defect — the blank-page-over-file:// bug it was written for
+  // was a load-order race.
   retries: 0,
   reporter: process.env.CI ? [['github'], ['list']] : [['list']],
   use: {

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { BelEditor } from '../components/BelEditor';
 import {
@@ -43,6 +44,7 @@ const REGISTRY: string = (import.meta.env.VITE_REGISTRY_URL as string | undefine
  * submission that their table has a gap has to re-read work they finished an hour ago.
  */
 export function SourceEditor(): React.JSX.Element {
+  const navigate = useNavigate();
   const [policies, setPolicies] = useState<readonly PolicySummary[]>([]);
   const [versions, setVersions] = useState<readonly VersionSummary[]>([]);
   const [policyCode, setPolicyCode] = useState('');
@@ -302,6 +304,15 @@ export function SourceEditor(): React.JSX.Element {
         value={expression}
         scope={scope}
         onChange={setExpression}
+        // F12 on `param.X` or `list.Y`. The definition is not in this document and not in any
+        // document — it is a shared asset with its own approvals — so "go to definition" means
+        // open that asset.
+        onNavigate={(kind, name) => {
+          void navigate(
+            `/assets?kind=${kind === 'PARAMETER' ? 'PARAMETER_SET' : 'REFERENCE_LIST'}` +
+              `&focus=${encodeURIComponent(name)}`,
+          );
+        }}
         label="BEL expression workbench"
       />
 

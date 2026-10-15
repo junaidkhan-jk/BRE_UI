@@ -128,8 +128,16 @@ test.describe('Policy Source', () => {
   test('the editor degrades to a plain message with no language service', async ({ page }) => {
     await page.goto('/#/edit');
 
-    // Monaco mounts; with no registry there is no type checking, and it says so rather than
-    // showing an editor that silently never validates.
+    // Wait for Monaco to mount FIRST, then for the message. Both in one assertion made this test
+    // flaky: the single timeout covered Monaco's two-megabyte parse, the debounce, AND the failing
+    // fetch, so it failed under load and passed on a rerun — which is the worst kind of test,
+    // because the rerun is read as proof there was nothing wrong.
+    await expect(page.getByRole('textbox', { name: /BEL expression workbench/i })).toBeVisible({
+      timeout: 20000,
+    });
+
+    // With no registry there is no type checking, and it says so rather than showing an editor
+    // that silently never validates.
     await expect(page.getByText(/No language service|no language service/i)).toBeVisible({
       timeout: 15000,
     });

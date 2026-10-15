@@ -20,6 +20,8 @@ import {
   submitAsset,
 } from '../api/assets';
 import { assetUsage, type AssetUsage } from '../api/assets';
+import { useSearchParams } from 'react-router-dom';
+
 import { useSession } from '../app/SessionContext';
 import { usingFixtures } from '../api/fixtures';
 import { Empty, Loading } from '../components/ScreenState';
@@ -57,7 +59,19 @@ const KINDS: readonly AssetKind[] = [
  */
 export function SharedAssets(): React.JSX.Element {
   const { session } = useSession();
-  const [kind, setKind] = useState<AssetKind>('PARAMETER_SET');
+  // Arrived from F12 in the expression editor: ?kind=PARAMETER_SET&focus=INDEBTEDNESS_CAP. The
+  // kind decides the list; `focus` is the parameter the author pressed F12 on, which is inside an
+  // asset rather than being one, so it is shown as a note rather than used to select a row.
+  const [query] = useSearchParams();
+  const requested = query.get('kind');
+  const focus = query.get('focus');
+  const [kind, setKind] = useState<AssetKind>(
+    requested === 'REFERENCE_LIST' ||
+      requested === 'REASON_CODE_CATALOGUE' ||
+      requested === 'AUTHORITY_MATRIX'
+      ? requested
+      : 'PARAMETER_SET',
+  );
   const [headers, setHeaders] = useState<readonly AssetHeader[] | null>(null);
   const [selected, setSelected] = useState<AssetVersion | null>(null);
   const [draft, setDraft] = useState<AssetContent | null>(null);
@@ -150,6 +164,13 @@ export function SharedAssets(): React.JSX.Element {
         <div>
           <p className="page__crumb">Governance</p>
           <h1 className="page__title">Shared assets</h1>
+          {focus ? (
+            <p className="panel__subtitle" role="status">
+              Looking for <code>{focus}</code> &mdash; open the approved version below. Changing it
+              needs a new asset version and its own approval, and then a new version of every policy
+              on that version&rsquo;s &ldquo;pinned by&rdquo; list.
+            </p>
+          ) : null}
         </div>
         <div className="page__actions">
           <input
