@@ -82,7 +82,7 @@ export function Simulator(): React.JSX.Element {
     listVersions(policyCode)
       .then((found) => {
         setVersions(found);
-        setVersion(found[0]?.version ?? '');
+        setVersion(found[0] ? String(found[0].version) : '');
       })
       .catch((caught: unknown) => setError(messageOf(caught)));
   }, [policyCode]);

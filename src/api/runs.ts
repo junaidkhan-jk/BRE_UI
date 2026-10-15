@@ -16,13 +16,28 @@ export interface PolicySummary {
   readonly status: string;
 }
 
-/** One version of a policy. */
+/**
+ * One version of a policy, as the history returns it.
+ *
+ * `editors` and `approvers` are lists on purpose: a draft handed between two people has two
+ * editors, and segregation of duties is enforced against all of them. Showing only the creator
+ * would make a reviewer look independent when they are not.
+ */
 export interface VersionSummary {
-  readonly version: string;
+  readonly version: number;
   readonly status: string;
-  readonly bundleHash: string;
-  readonly approvedAt: string;
+  readonly bundleHash?: string;
+  readonly basedOnVersion?: number;
+  readonly imported: boolean;
+  readonly submissionRound: number;
+  readonly changeNote?: string;
+  readonly committeeReference?: string;
   readonly createdBy: string;
+  readonly createdAt: string;
+  readonly submittedAt?: string;
+  readonly approvedAt?: string;
+  readonly editors: readonly string[];
+  readonly approvers: readonly string[];
 }
 
 /** What one component did for one entity. */
@@ -163,9 +178,40 @@ export function listPolicies(): Promise<PolicySummary[]> {
   return call<PolicySummary[]>('/v1/policies');
 }
 
-/** A policy's versions, newest first. */
+/** A policy's versions, newest first, with who did what and when. */
 export function listVersions(policyCode: string): Promise<VersionSummary[]> {
   return call<VersionSummary[]>(`/v1/policies/${encodeURIComponent(policyCode)}/versions`);
+}
+
+/**
+ * Opens a draft, optionally cloning a version's source and test cases into it.
+ *
+ * A clone carries the tests as well as the rules: rules without the assertions that check them
+ * produce a draft that compiles, has no tests, and cannot be submitted.
+ */
+export function createDraft(policyCode: string, cloneFrom?: number): Promise<VersionDetail> {
+  const query = cloneFrom === undefined ? '' : `?cloneFrom=${cloneFrom}`;
+  return call<VersionDetail>(
+    `/v1/policies/${encodeURIComponent(policyCode)}/versions${query}`,
+    { method: 'POST' },
+  );
+}
+
+/**
+ * Imports a policy from PSF source (§2.6).
+ *
+ * It lands as a DRAFT and is marked imported — an import arriving APPROVED would put a policy live
+ * with nobody at the receiving lender having read it.
+ */
+export function importPolicy(
+  policyCode: string,
+  name: string,
+  psf: string,
+): Promise<VersionDetail> {
+  return call<VersionDetail>('/v1/policies/import', {
+    method: 'POST',
+    body: JSON.stringify({ policyCode, name, psf }),
+  });
 }
 
 /** A version's PSF source, so a run can be read beside the rules that produced it. */
