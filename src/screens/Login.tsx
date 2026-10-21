@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 
 import { AuthError } from '../api/auth';
 import { useSession } from '../app/SessionContext';
@@ -22,7 +23,8 @@ import './Login.css';
  *     it stays hidden until the server says the email exists in more than one organisation.
  */
 export function Login(): React.JSX.Element {
-  const { signIn } = useSession();
+  const { signIn, session } = useSession();
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [organisation, setOrganisation] = useState('');
@@ -49,6 +51,23 @@ export function Login(): React.JSX.Element {
     } finally {
       setBusy(false);
     }
+  }
+
+  // Signing in has to GO somewhere, and until now it did not.
+  //
+  // submit() awaited signIn, the session was stored, the context updated — and the route stayed on
+  // /login. The screen sat there with the credentials still in the boxes and no error, which reads
+  // as "nothing happened" and is indistinguishable from a form that silently failed. Only half of
+  // the redirect existed: RequireSession already sends an unauthenticated visitor here with
+  // `state.from` set, and its own comment says that is "so signing in returns them there" — but
+  // nothing ever read it.
+  //
+  // Rendered as a redirect rather than called in submit(), so it also covers arriving at /login
+  // with a session already in hand: opening the bookmark in a tab that is signed in should not show
+  // a login form.
+  if (session) {
+    const from = (location.state as { from?: string } | null)?.from;
+    return <Navigate to={from ?? '/policies'} replace />;
   }
 
   return (
