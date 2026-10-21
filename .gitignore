@@ -5,3 +5,6 @@ playwright-report/
 test-results/
 *.tsbuildinfo
 .vite/
+
+# Local tooling scratch.
+.aitdp/
