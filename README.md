@@ -116,15 +116,16 @@ version — no database or Docker needed:
 
 ```bash
 cd ../BRE_Backend
-./devstack/up.sh --registry        # PostgreSQL + registry + decision service + an admin account
+./devstack/up.sh        # the whole backend: PostgreSQL, registry, decision service, admin account
 ```
 
-Registry on **8081**, decision service on **8080**. Override with `BRE_REGISTRY_PORT` and
-`BRE_PORT` if something already holds them.
+The bare command brings up everything — there is no flag to remember. Registry on **8081**,
+decision service on **8080**. Override with `BRE_REGISTRY_PORT` and `BRE_PORT` if something already
+holds them.
 
 Sign in with **`admin@lender.local` / `devstack-admin-password`**.
 
-For the approval path you need more than one person, so use `--sandbox`, which seeds one account
+The approval path needs more than one person, and the bare command already seeds one account
 per role (`author@`, `reviewer@`, `approver@`, `viewer@`, `auditor@sandbox.invalid`, password
 `sandbox-password-1`). Segregation of duties is enforced by database trigger — an author genuinely
 cannot approve their own work, which is the point.
@@ -201,10 +202,10 @@ npm run e2e:a11y      # axe-core accessibility checks
 ### Live decision lookup needs the hot store
 
 The decision-trace screen reads decisions through the registry, which needs the decision service's
-PostgreSQL hot store. Start the backend with `--deliver` rather than `--registry`:
+PostgreSQL hot store — included in the bare command:
 
 ```bash
-cd ../BRE_Backend && ./devstack/up.sh --deliver
+cd ../BRE_Backend && ./devstack/up.sh
 ```
 
 And for a decision's **explanation** — the replay that answers "why was this declined" — the
@@ -229,11 +230,11 @@ What the studio *displays* is seeded by the backend, and none of it is a script 
 | Layer | Seeded by |
 |---|---|
 | Schema (23 migrations) | Flyway, at backend startup |
-| Tenant and admin account | `./devstack/up.sh --registry` |
-| One account per role | `./devstack/up.sh --sandbox` |
+| Tenant and admin account | `./devstack/up.sh` |
+| One account per role | `./devstack/up.sh` (included) |
 | The reference MFI JLG policy, its parameters, lists and fixtures | `devstack/e2e.sh`, which `up.sh` runs for you |
 
-So a `--registry` start gives you a signed, deployed, decidable policy to open in the studio. See
+So a bare `./devstack/up.sh` gives you a signed, deployed, decidable policy to open in the studio. See
 [the backend README, §8](https://github.com/junaidkhan-jk/BRE_Backend#8-pre-data-scripts-and-seeding).
 
 ---
