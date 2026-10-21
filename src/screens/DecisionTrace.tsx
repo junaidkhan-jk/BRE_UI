@@ -1,6 +1,9 @@
 import { useState } from 'react';
 
-import { RECENT_DECISIONS, SIMULATION, TRACE } from '../api/fixtures';
+import { type Explanation, explainDecision } from '../api/decisions';
+import { RECENT_DECISIONS, SIMULATION, TRACE, usingFixtures } from '../api/fixtures';
+import { RunError } from '../api/runs';
+import { Loading } from '../components/ScreenState';
 import { StatusPill } from '../components/StatusPill';
 
 import './screens.css';
@@ -18,13 +21,157 @@ import './screens.css';
  *
  * Facts are shown masked. Unmasking is an auditor action, needs a recorded reason, and is not on
  * this screen.
+ *
+ * **Two modes, and the difference is deliberate.** With fixtures the screen shows a monitoring
+ * view — today's volume, deviation and fail rates, a recent-decision list — because that is the
+ * wireframe. Against a real registry (M5-08) it shows **lookup only**: there is no endpoint that
+ * lists decisions or aggregates a day's outcomes, so those tiles would have nothing behind them.
+ * Rendering a fixture's "Decisions today: 1,284" against a live installation is exactly the
+ * mistake the e2e suite has a test for — sample data that looks like real data is how a demo gets
+ * mistaken for a working system — so in live mode they are not rendered at all.
  */
 export function DecisionTrace(): React.JSX.Element {
   const [traced, setTraced] = useState<string | null>(null);
   const [query, setQuery] = useState('');
+  const [explanation, setExplanation] = useState<Explanation | null>(null);
+  const [looking, setLooking] = useState(false);
+  const [failure, setFailure] = useState<string | null>(null);
 
   const total = SIMULATION.applications;
   const share = (n: number): string => `${((n / total) * 100).toFixed(1)}%`;
+
+  async function lookUp(decisionId: string): Promise<void> {
+    setLooking(true);
+    setFailure(null);
+    setExplanation(null);
+    try {
+      setExplanation(await explainDecision(decisionId));
+    } catch (error) {
+      // The message as the service gave it, including its reason code. A 409 here means something
+      // specific and actionable — the facts were not stored, or the keys that sealed them are gone
+      // — and replacing it with "could not load" would send somebody to the wrong place.
+      setFailure(
+        error instanceof RunError ? error.message : 'The decision could not be explained.',
+      );
+    } finally {
+      setLooking(false);
+    }
+  }
+
+  if (!usingFixtures) {
+    return (
+      <section>
+        <header className="page__head">
+          <div>
+            <p className="page__crumb">Workspace</p>
+            <h1 className="page__title">Decision Trace</h1>
+          </div>
+          <div className="page__actions">
+            <input
+              className="input"
+              type="search"
+              placeholder="Decision ID"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              aria-label="Decision ID"
+            />
+            <button
+              type="button"
+              className="btn btn--primary"
+              onClick={() => void lookUp(query.trim())}
+              disabled={looking || query.trim().length === 0}
+            >
+              Explain
+            </button>
+          </div>
+        </header>
+
+        <p className="lead">
+          A decision is explained by <b>replaying its stored facts against its stored bundle</b>
+          {' '}
+          (D7), then comparing with what was recorded. Facts are masked (§9.4); there is no unmask
+          path on this screen.
+        </p>
+
+        {looking ? <Loading label="Replaying the decision" /> : null}
+        {/* run__error, the style the audit screen and the run panel already use. A new
+            panel--warn class would have rendered as an ordinary panel until somebody noticed the
+            CSS was never written — and the one alert on this screen that must not look ordinary is
+            "this replay does not reproduce the record". */}
+        {failure ? (
+          <div className="run__error" role="alert">
+            {failure}
+          </div>
+        ) : null}
+
+        {explanation ? (
+          <>
+            <div className="panel">
+              <div className="trace__summary">
+                <StatusPill decision={explanation.decision} />
+                {/* The load-bearing fact on this screen. A replay that does NOT reproduce the
+                    record means one of three serious things, and showing the replayed answer as
+                    if it were the decision would leave what a borrower was told and what the
+                    audit trail says permanently out of step. */}
+                <StatusPill
+                  outcome={explanation.matched ? 'PASS' : 'FAIL'}
+                  label={
+                    explanation.matched
+                      ? 'Replay reproduces the record'
+                      : 'REPLAY DOES NOT REPRODUCE THE RECORD'
+                  }
+                />
+              </div>
+              <dl className="meta">
+                <dt>Decision ID</dt>
+                <dd>
+                  <code className="hash">{explanation.decisionId}</code>
+                </dd>
+                <dt>Bundle hash</dt>
+                <dd>
+                  <code className="hash">{explanation.bundleHash}</code>
+                </dd>
+              </dl>
+            </div>
+
+            {explanation.mismatches.length > 0 ? (
+              <div className="run__error" role="alert">
+                <b>Why the replay differs</b>
+                <ul>
+                  {explanation.mismatches.map((reason) => (
+                    <li key={reason}>{reason}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            <ol className="timeline">
+              {explanation.steps.map((step) => (
+                <li key={step} className="timeline__item">
+                  <div className="timeline__head">
+                    <span className="cell__code">{step}</span>
+                  </div>
+                </li>
+              ))}
+            </ol>
+
+            <div className="panel">
+              <h2 className="panel__title">Facts, masked (§9.4)</h2>
+              {explanation.facts ? (
+                <pre className="code">{JSON.stringify(explanation.facts, null, 2)}</pre>
+              ) : (
+                <p className="panel__meta">
+                  No fact snapshot was stored for this decision, so there is nothing to show.
+                  Snapshots are off by default because they are the applicant&rsquo;s personal
+                  data.
+                </p>
+              )}
+            </div>
+          </>
+        ) : null}
+      </section>
+    );
+  }
 
   if (traced) {
     return (
