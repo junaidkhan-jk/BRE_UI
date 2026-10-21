@@ -3,7 +3,8 @@
  *
  * The studio talks to the BFF for everything else (TRD §13.1); authentication is the one call that
  * goes to the registry directly, because the BFF does not exist yet and a login screen that cannot
- * log in is not worth shipping. `VITE_REGISTRY_URL` points at it.
+ * log in is not worth shipping. The dev server proxies `/v1` to it (see vite.config.ts),
+ * so these calls are same-origin and `VITE_REGISTRY_URL` stays EMPTY.
  *
  * **The token is kept in sessionStorage, and that is a deliberate second-best.** The right answer
  * is an HttpOnly, SameSite cookie the browser's script cannot read, so an injected script cannot

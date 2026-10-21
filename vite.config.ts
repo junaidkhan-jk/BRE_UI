@@ -52,12 +52,29 @@ export default defineConfig({
   base: './',
   server: {
     port: 5173,
-    // The studio never calls the Decision API directly — it talks to the BFF (TRD §13.1), which
-    // is what keeps per-screen aggregation and masking out of the browser. In development the BFF
-    // is proxied so the app runs same-origin and needs no CORS configuration.
+    // Proxied so the app runs SAME-ORIGIN and the backend needs no CORS configuration. That was
+    // always the intent; the path was wrong, and the mistake made the studio unusable against a
+    // real backend for as long as it has existed.
+    //
+    // The proxy matched '/bff', for the BFF of TRD §13.1 — but services/studio-service is still
+    // an empty module, so every client in src/api calls the registry's '/v1/…' directly. Nothing
+    // has ever requested '/bff'. So a browser had two ways to fail and no way to succeed:
+    //
+    //   VITE_REGISTRY_URL set    -> the browser calls :8081 cross-origin, the registry sends no
+    //                               Access-Control-Allow-Origin, and the request is blocked. On
+    //                               screen: "Could not reach the server."
+    //   VITE_REGISTRY_URL unset  -> '/v1/…' resolves against the dev server, which proxies only
+    //                               '/bff', and returns its own 404.
+    //
+    // Nothing caught it because VITE_USE_FIXTURES defaults to true and the Playwright suite runs
+    // on fixtures — so every test passed against a studio that could not talk to anything. The
+    // same shape as the explanation endpoint that had never worked against PostgreSQL: a default
+    // that keeps the tests green also keeps the real path unexercised.
+    //
+    // With '/v1' proxied, leave VITE_REGISTRY_URL EMPTY and the browser stays same-origin.
     proxy: {
-      '/bff': {
-        target: process.env.BRE_BFF_URL ?? 'http://localhost:8081',
+      '/v1': {
+        target: process.env.BRE_REGISTRY_URL ?? process.env.BRE_BFF_URL ?? 'http://localhost:8081',
         changeOrigin: true,
       },
     },

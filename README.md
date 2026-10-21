@@ -145,22 +145,37 @@ Opens on `http://localhost:5173`. Every screen renders from fixtures, and a bann
 ### Against a real backend
 
 ```bash
-VITE_USE_FIXTURES=false VITE_REGISTRY_URL=http://127.0.0.1:8081 npm run dev
+VITE_USE_FIXTURES=false BRE_REGISTRY_URL=http://127.0.0.1:8081 npm run dev
 ```
 
 Or persist it — copy `.env.example` to `.env.local` and set:
 
 ```
 VITE_USE_FIXTURES=false
-VITE_REGISTRY_URL=http://127.0.0.1:8081
+BRE_REGISTRY_URL=http://127.0.0.1:8081
 VITE_ENV_LABEL=LOCAL
 ```
 
 | Variable | Default | What it does |
 |---|---|---|
 | `VITE_USE_FIXTURES` | `true` | `false` makes the studio call the real registry |
-| `VITE_REGISTRY_URL` | `''` | the backend's base URL |
+| `BRE_REGISTRY_URL` | `http://localhost:8081` | where the dev server **proxies** `/v1`. Read by `vite.config.ts` at start-up, so it stays server-side and never reaches the browser |
 | `VITE_ENV_LABEL` | `LOCAL` | shown in the header, so nobody mistakes which environment they are authoring in |
+
+> **`BRE_REGISTRY_URL`, not `VITE_REGISTRY_URL`** — and the distinction is the difference between
+> working and not.
+>
+> The dev server **proxies `/v1`** to the backend, so the app runs same-origin and the registry
+> needs no CORS configuration. `VITE_REGISTRY_URL` is a *browser* variable that prefixes every API
+> call with an absolute URL; setting it makes the browser call the registry cross-origin, the
+> registry sends no `Access-Control-Allow-Origin`, and the screen says **"Could not reach the
+> server."** Leave it unset.
+>
+> This caught us out: the proxy matched `/bff` — for the BFF of TRD §13.1, a module that is still
+> empty — while every client calls `/v1/…`. So a browser had two ways to fail and none to succeed,
+> and **the studio could not reach a live backend for as long as it existed**. Nothing caught it
+> because fixtures are the default and the Playwright suite runs on them: every test passed against
+> a studio that could not talk to anything.
 
 **`VITE_USE_FIXTURES` defaults to `true` on purpose.** A studio that defaulted to a live backend
 and silently failed to reach one would look broken; one that defaults to samples and *announces*
