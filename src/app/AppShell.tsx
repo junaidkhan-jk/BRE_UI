@@ -28,7 +28,7 @@ export function AppShell(): React.JSX.Element {
     <div className="shell">
       <nav className="shell__nav" aria-label="Workspace">
         <div className="shell__brand">
-          JUNAID <span className="shell__brand-dim">portal</span>
+          BRE <span className="shell__brand-dim">Studio</span>
         </div>
         <ul className="shell__links">
           {SCREENS.map((screen) => (
@@ -81,19 +81,6 @@ export function AppShell(): React.JSX.Element {
                   SoD override enabled
                 </span>
               ) : null}
-              {/* An anchor to a STATIC page, not a route. junaid.html is a complete document
-                  with its own <head>, styles and script; serving it from public/ renders it
-                  exactly as written, where porting it into a component would mean rewriting
-                  every rule to avoid colliding with the studio's own CSS. A plain link also
-                  survives popup blockers, which window.open from a handler does not. */}
-              <a
-                className="shell__signout"
-                href="junaid.html"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Junaid&rsquo;s life
-              </a>
               <ThemeToggle />
               <button className="shell__signout" type="button" onClick={() => void signOut()}>
                 Sign out
