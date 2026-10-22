@@ -14,7 +14,6 @@ import { Simulator } from '../screens/Simulator';
 import { VersionDiff } from '../screens/VersionDiff';
 import { Empty } from '../components/ScreenState';
 import { Login } from '../screens/Login';
-import { JunaidsLife } from '../screens/JunaidsLife';
 
 /**
  * Routes.
@@ -63,9 +62,6 @@ export const router = createHashRouter([
       { path: 'structure', element: <PolicyStructure /> },
       { path: 'assets', element: <SharedAssets /> },
       { path: 'audit', element: <AuditTrail /> },
-      // Not a product screen. Reached from the header button, routed here so it renders inside
-      // the shell instead of opening a window a browser may block.
-      { path: 'junaid', element: <JunaidsLife /> },
       {
         path: '*',
         element: <Empty title="That page does not exist." />,

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet } from 'react-router-dom';
 
 import { usingFixtures } from '../api/fixtures';
 import { SCREENS } from './screens';
@@ -23,7 +23,6 @@ export function AppShell(): React.JSX.Element {
   const environment = import.meta.env.VITE_ENV_LABEL ?? 'LOCAL';
   const isProduction = environment === 'PROD';
   const { session, signOut } = useSession();
-  const navigate = useNavigate();
 
   return (
     <div className="shell">
@@ -82,13 +81,19 @@ export function AppShell(): React.JSX.Element {
                   SoD override enabled
                 </span>
               ) : null}
-              <button
+              {/* An anchor to a STATIC page, not a route. junaid.html is a complete document
+                  with its own <head>, styles and script; serving it from public/ renders it
+                  exactly as written, where porting it into a component would mean rewriting
+                  every rule to avoid colliding with the studio's own CSS. A plain link also
+                  survives popup blockers, which window.open from a handler does not. */}
+              <a
                 className="shell__signout"
-                type="button"
-                onClick={() => void navigate('/junaid')}
+                href="junaid.html"
+                target="_blank"
+                rel="noreferrer"
               >
                 Junaid&rsquo;s life
-              </button>
+              </a>
               <ThemeToggle />
               <button className="shell__signout" type="button" onClick={() => void signOut()}>
                 Sign out
