@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 
 import { usingFixtures } from '../api/fixtures';
 import { SCREENS } from './screens';
@@ -23,12 +23,13 @@ export function AppShell(): React.JSX.Element {
   const environment = import.meta.env.VITE_ENV_LABEL ?? 'LOCAL';
   const isProduction = environment === 'PROD';
   const { session, signOut } = useSession();
+  const navigate = useNavigate();
 
   return (
     <div className="shell">
       <nav className="shell__nav" aria-label="Workspace">
         <div className="shell__brand">
-          BRE <span className="shell__brand-dim">Studio</span>
+          JUNAID <span className="shell__brand-dim">portal</span>
         </div>
         <ul className="shell__links">
           {SCREENS.map((screen) => (
@@ -81,6 +82,13 @@ export function AppShell(): React.JSX.Element {
                   SoD override enabled
                 </span>
               ) : null}
+              <button
+                className="shell__signout"
+                type="button"
+                onClick={() => void navigate('/junaid')}
+              >
+                Junaid&rsquo;s life
+              </button>
               <ThemeToggle />
               <button className="shell__signout" type="button" onClick={() => void signOut()}>
                 Sign out
